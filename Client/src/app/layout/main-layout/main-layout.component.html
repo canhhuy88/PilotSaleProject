@@ -1,0 +1,9 @@
+<div class="h-screen flex flex-col overflow-hidden bg-gray-50">
+    <app-header></app-header>
+    <div class="flex flex-1 overflow-hidden">
+        <app-sidebar></app-sidebar>
+        <main class="flex-1 overflow-auto p-6 scrollbar-hide">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+</div>

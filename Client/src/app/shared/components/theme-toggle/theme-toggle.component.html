@@ -1,0 +1,12 @@
+<button mat-icon-button (click)="themeService.toggleTheme()" [attr.aria-label]="'Toggle theme'"
+    class="text-text-secondary hover:text-text-primary transition-all duration-300"
+    [title]="(themeService.theme$ | async) === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'">
+    <span class="icon-container flex items-center justify-center">
+        <ng-container *ngIf="(themeService.theme$ | async) === 'light'; else darkIcon">
+            <mat-icon>dark_mode</mat-icon>
+        </ng-container>
+        <ng-template #darkIcon>
+            <mat-icon class="text-yellow-400">light_mode</mat-icon>
+        </ng-template>
+    </span>
+</button>

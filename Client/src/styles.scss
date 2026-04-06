@@ -1,0 +1,102 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+:root {
+  /* Semantic Colors - Light Theme (Default) */
+  --color-primary: #0ea5e9;
+  --color-secondary: #64748b;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-border: #e2e8f0;
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+  --color-error: #ef4444;
+    --color-gray-800: #1e293b;
+}
+
+:root.dark {
+  /* Semantic Colors - Dark Theme */
+  --color-primary: #38bdf8;
+  --color-secondary: #94a3b8;
+  --color-background: #0f172a !important;
+  --color-surface: #1e293b;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-border: #334155;
+  --color-success: #4ade80;
+  --color-warning: #facc15;
+  --color-error: #f87171;
+  --color-gray-800: #f8fafc;
+}
+
+html, body { 
+  height: 100%; 
+}
+
+body { 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  /* Smooth transition between themes */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Base element transitions for smooth theme switching */
+*, *::before, *::after {
+  border-color: var(--color-border);
+}
+.mat-mdc-button-base .mat-icon,
+.mat-mdc-outlined-button:not(:disabled),
+.mdc-button__label {    
+    color: var(--color-text-primary);
+}
+
+.shadow-slate-200,
+.bg-slate-50,.py-3,
+.bg-gray-50 ,
+.bg-gray-100
+ .mat-toolbar[_ngcontent-ng-c507708880] {
+    background:var(--color-background);
+}
+
+.text-gray-800 {
+    color: var(--color-gray-800);
+}
+.mat-mdc-card,
+.bg-gray-100{
+  background: var(--color-surface) !important;
+  color: var(--color-text-primary);
+}
+
+.transition-theme {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Custom shadow/rounded corners for POS feel */
+.pos-card {
+  @apply rounded-lg shadow-sm transition-all duration-300;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.pos-btn-primary {
+  @apply font-medium py-2 px-4 rounded-md transition-all duration-300 hover:opacity-90;
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.pos-btn-secondary {
+  @apply font-medium py-2 px-4 rounded-md transition-all duration-300 hover:opacity-90;
+  background-color: var(--color-secondary);
+  color: #ffffff;
+}
+
+.shadow-lg,.focus\:ring-4:focus,.shadow-primary-100,.shadow-xl{
+  box-shadow:none !important;
+}

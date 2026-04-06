@@ -1,0 +1,31 @@
+<mat-toolbar class="bg-surface border-b border-border flex justify-between items-center px-4 transition-theme">
+    <div class="flex items-center gap-2">
+        <span class="text-xl font-bold text-primary">BizI POS</span>
+    </div>
+
+    <div class="flex items-center gap-4">
+        <app-theme-toggle></app-theme-toggle>
+
+        <button mat-icon-button class="text-text-secondary hover:text-text-primary transition-theme">
+            <mat-icon>notifications</mat-icon>
+        </button>
+
+        <div class="flex items-center gap-2 cursor-pointer" [matMenuTriggerFor]="userMenu">
+            <div
+                class="w-8 h-8 rounded-full bg-primary text-surface flex items-center justify-center font-bold transition-theme">
+                {{ (authService.currentUser$ | async)?.fullName?.[0] || 'U' }}
+            </div>
+            <span class="hidden sm:inline text-sm font-medium text-text-primary transition-theme">
+                {{ (authService.currentUser$ | async)?.fullName || 'User' }}
+            </span>
+            <mat-icon class="text-text-secondary transition-theme">expand_more</mat-icon>
+        </div>
+
+        <mat-menu #userMenu="matMenu" xPosition="before">
+            <button mat-menu-item (click)="logout()">
+                <mat-icon>logout</mat-icon>
+                <span>Logout</span>
+            </button>
+        </mat-menu>
+    </div>
+</mat-toolbar>
