@@ -1,14 +1,17 @@
 using AutoMapper;
-using BizI.Application.DTOs.Category;
-using BizI.Application.DTOs.Customer;
-using BizI.Application.DTOs.CustomerGroup;
 using BizI.Application.DTOs.ImportOrder;
 using BizI.Application.DTOs.Inventory;
-using BizI.Application.DTOs.Payment;
-using BizI.Application.DTOs.Role;
-using BizI.Application.DTOs.Supplier;
-using BizI.Application.DTOs.User;
-using BizI.Application.DTOs.Warehouse;
+using BizI.Application.Features.AuditLogs.Dtos;
+using BizI.Application.Features.Categories.Dtos;
+using BizI.Application.Features.CustomerGroups.Dtos;
+using BizI.Application.Features.Customers.Dtos;
+using BizI.Application.Features.Orders.Dtos;
+using BizI.Application.Features.PaymentAndReturns.Dtos;
+using BizI.Application.Features.Products.Dtos;
+using BizI.Application.Features.Roles.Dtos;
+using BizI.Application.Features.Suppliers.Dtos;
+using BizI.Application.Features.Users.Dtos;
+using BizI.Application.Features.Warehouses.Dtos;
 using BizI.Domain.Entities;
 
 namespace BizI.Application.Mappings;
@@ -23,8 +26,8 @@ public class AutoMapperProfile : Profile
     {
         // ── Product ──────────────────────────────────────────────────────────
         // Product.CostPrice and SalePrice are Money value objects
-        CreateMap<Product, DTOs.Product.ProductDto>()
-            .ConstructUsing(p => new DTOs.Product.ProductDto(
+        CreateMap<Product, ProductDto>()
+            .ConstructUsing(p => new ProductDto(
                 p.Id, p.Name, p.SKU, p.Description, p.Barcode,
                 p.CategoryId,
                 p.CostPrice.Amount,   // Money → decimal
@@ -54,8 +57,8 @@ public class AutoMapperProfile : Profile
 
         // ── Order ─────────────────────────────────────────────────────────────
         // Order amounts are Money VOs; Items is IReadOnlyCollection<OrderItem>
-        CreateMap<Order, DTOs.Order.OrderDto>()
-            .ConstructUsing(o => new DTOs.Order.OrderDto(
+        CreateMap<Order, OrderDto>()
+            .ConstructUsing(o => new OrderDto(
                 o.Id, o.Code, o.CustomerId,
                 o.TotalAmount.Amount,
                 o.Discount.Amount,
@@ -64,7 +67,7 @@ public class AutoMapperProfile : Profile
                 o.Status, o.PaymentStatus,
                 o.CreatedBy,
                 o.CreatedAt,
-                o.Items.Select(i => new DTOs.Order.OrderItemDto(
+                o.Items.Select(i => new OrderItemDto(
                     i.ProductId, i.Quantity, i.ReturnedQuantity,
                     i.Price.Amount, i.LineTotal.Amount,
                     i.Price.Currency)).ToList()));
@@ -125,7 +128,6 @@ public class AutoMapperProfile : Profile
 
         // ── Supplier ─────────────────────────────────────────────────────────
         // Supplier has: Name, Phone (PhoneNumber VO), ContactAddress (Address VO)
-        // No Email, no IsActive in the refactored domain
         CreateMap<Supplier, SupplierDto>()
             .ConstructUsing(s => new SupplierDto(
                 s.Id, s.Name,
@@ -133,12 +135,10 @@ public class AutoMapperProfile : Profile
                 s.ContactAddress != null ? s.ContactAddress.FullAddress : null));
 
         // ── Warehouse ────────────────────────────────────────────────────────
-        // Warehouse has: Name, BranchId — NO Address, NO IsActive
         CreateMap<Warehouse, WarehouseDto>()
             .ConstructUsing(w => new WarehouseDto(w.Id, w.Name, w.BranchId));
 
         // ── Role ─────────────────────────────────────────────────────────────
-        // Role has: Name, Permissions (list of strings) — NO Description
         CreateMap<Role, RoleDto>()
             .ConstructUsing(r => new RoleDto(r.Id, r.Name, r.Permissions.ToList()));
 

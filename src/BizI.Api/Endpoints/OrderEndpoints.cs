@@ -21,7 +21,7 @@ public static class OrderEndpoints
         // GET /api/orders/{id}
         group.MapGet("/{id}", async (Guid id, IMediator mediator) =>
         {
-            var result = await mediator.Send(new GetOrderQuery(id));
+            var result = await mediator.Send(new GetOrderByIdQuery(id));
             return result is not null ? Results.Ok(result) : Results.NotFound();
         });
 
