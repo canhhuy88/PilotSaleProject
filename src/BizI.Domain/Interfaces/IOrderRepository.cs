@@ -12,7 +12,7 @@ public interface IOrderRepository : IRepository<Order>
     Task<Order?> GetByCodeAsync(string code);
 
     /// <summary>Returns all orders for a specific customer.</summary>
-    Task<IEnumerable<Order>> GetByCustomerAsync(string customerId);
+    Task<IEnumerable<Order>> GetByCustomerAsync(Guid customerId);
 
     /// <summary>Returns all orders that match a given status.</summary>
     Task<IEnumerable<Order>> GetByStatusAsync(OrderStatus status);

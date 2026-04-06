@@ -10,7 +10,7 @@ public class AuditLog : BaseEntity
 {
     public string Action { get; private set; } = string.Empty;
     public string EntityName { get; private set; } = string.Empty;
-    public string EntityId { get; private set; } = string.Empty;
+    public Guid EntityId { get; private set; }
     public string OldData { get; private set; } = string.Empty;   // JSON snapshot
     public string NewData { get; private set; } = string.Empty;   // JSON snapshot
     public string CreatedBy { get; private set; } = string.Empty;
@@ -24,7 +24,7 @@ public class AuditLog : BaseEntity
     public static AuditLog Create(
         string action,
         string entityName,
-        string entityId,
+        Guid entityId,
         string createdBy,
         string oldData = "",
         string newData = "")
@@ -35,14 +35,14 @@ public class AuditLog : BaseEntity
         if (string.IsNullOrWhiteSpace(entityName))
             throw new DomainException("Audit log entity name cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(entityId))
+        if (entityId == Guid.Empty)
             throw new DomainException("Audit log entity ID cannot be empty.");
 
         return new AuditLog
         {
             Action = action.Trim(),
             EntityName = entityName.Trim(),
-            EntityId = entityId.Trim(),
+            EntityId = entityId,
             CreatedBy = createdBy.Trim(),
             OldData = oldData,
             NewData = newData

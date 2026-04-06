@@ -8,7 +8,7 @@ namespace BizI.Domain.Entities;
 /// </summary>
 public class Payment : BaseEntity
 {
-    public string OrderId { get; private set; } = string.Empty;
+    public Guid OrderId { get; private set; }
 
     /// <summary>Amount tendered in this payment.</summary>
     public Money Amount { get; private set; } = Money.Zero;
@@ -18,9 +18,9 @@ public class Payment : BaseEntity
 
     private Payment() { } // ORM / serialization
 
-    public static Payment Create(string orderId, decimal amount, string method, string currency = "VND")
+    public static Payment Create(Guid orderId, decimal amount, string method, string currency = "VND")
     {
-        if (string.IsNullOrWhiteSpace(orderId))
+        if (orderId == Guid.Empty)
             throw new DomainException("OrderId cannot be empty.");
 
         if (string.IsNullOrWhiteSpace(method))
@@ -28,7 +28,7 @@ public class Payment : BaseEntity
 
         return new Payment
         {
-            OrderId = orderId.Trim(),
+            OrderId = orderId,
             Amount = new Money(amount, currency),
             Method = method.Trim()
         };
@@ -41,8 +41,8 @@ public class Payment : BaseEntity
 /// </summary>
 public class Debt : BaseEntity
 {
-    public string CustomerId { get; private set; } = string.Empty;
-    public string OrderId { get; private set; } = string.Empty;
+    public Guid CustomerId { get; private set; }
+    public Guid OrderId { get; private set; }
 
     /// <summary>Total debt amount for this record.</summary>
     public Money Amount { get; private set; } = Money.Zero;
@@ -59,18 +59,18 @@ public class Debt : BaseEntity
 
     private Debt() { } // ORM / serialization
 
-    public static Debt Create(string customerId, string orderId, decimal amount, string currency = "VND")
+    public static Debt Create(Guid customerId, Guid orderId, decimal amount, string currency = "VND")
     {
-        if (string.IsNullOrWhiteSpace(customerId))
+        if (customerId == Guid.Empty)
             throw new DomainException("CustomerId cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(orderId))
+        if (orderId == Guid.Empty)
             throw new DomainException("OrderId cannot be empty.");
 
         return new Debt
         {
-            CustomerId = customerId.Trim(),
-            OrderId = orderId.Trim(),
+            CustomerId = customerId,
+            OrderId = orderId,
             Amount = new Money(amount, currency)
         };
     }
@@ -96,7 +96,7 @@ public class Debt : BaseEntity
 /// </summary>
 public class ReturnOrder : BaseEntity
 {
-    public string OrderId { get; private set; } = string.Empty;
+    public Guid OrderId { get; private set; }
 
     /// <summary>Total refund amount covering all returned lines.</summary>
     public Money TotalRefund { get; private set; } = Money.Zero;
@@ -106,16 +106,16 @@ public class ReturnOrder : BaseEntity
 
     private ReturnOrder() { } // ORM / serialization
 
-    public static ReturnOrder Create(string orderId, IEnumerable<ReturnItem> items, string currency = "VND")
+    public static ReturnOrder Create(Guid orderId, IEnumerable<ReturnItem> items, string currency = "VND")
     {
-        if (string.IsNullOrWhiteSpace(orderId))
+        if (orderId == Guid.Empty)
             throw new DomainException("OrderId cannot be empty.");
 
         var itemList = items?.ToList() ?? new List<ReturnItem>();
         if (!itemList.Any())
             throw new DomainException("A return order must contain at least one item.");
 
-        var returnOrder = new ReturnOrder { OrderId = orderId.Trim() };
+        var returnOrder = new ReturnOrder { OrderId = orderId };
         foreach (var item in itemList)
             returnOrder._items.Add(item);
 
@@ -130,7 +130,7 @@ public class ReturnOrder : BaseEntity
 /// </summary>
 public class ReturnItem
 {
-    public string ProductId { get; private set; } = string.Empty;
+    public Guid ProductId { get; private set; }
     public int Quantity { get; private set; }
 
     /// <summary>Per-unit refund price for this return line.</summary>
@@ -141,9 +141,9 @@ public class ReturnItem
 
     private ReturnItem() { } // ORM
 
-    public static ReturnItem Create(string productId, int quantity, decimal refundPrice, string currency = "VND")
+    public static ReturnItem Create(Guid productId, int quantity, decimal refundPrice, string currency = "VND")
     {
-        if (string.IsNullOrWhiteSpace(productId))
+        if (productId == Guid.Empty)
             throw new DomainException("ProductId cannot be empty.");
 
         if (quantity <= 0)
@@ -151,7 +151,7 @@ public class ReturnItem
 
         return new ReturnItem
         {
-            ProductId = productId.Trim(),
+            ProductId = productId,
             Quantity = quantity,
             RefundPrice = new Money(refundPrice, currency)
         };

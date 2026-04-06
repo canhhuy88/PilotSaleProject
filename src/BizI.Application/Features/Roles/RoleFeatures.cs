@@ -3,10 +3,10 @@ using BizI.Application.DTOs.Role;
 namespace BizI.Application.Features.Roles;
 
 public record CreateRoleCommand(string Name, List<string>? Permissions = null) : IRequest<CommandResult>;
-public record UpdateRoleCommand(string Id, string Name, List<string>? Permissions = null) : IRequest<CommandResult>;
-public record DeleteRoleCommand(string Id) : IRequest<CommandResult>;
+public record UpdateRoleCommand(Guid Id, string Name, List<string>? Permissions = null) : IRequest<CommandResult>;
+public record DeleteRoleCommand(Guid Id) : IRequest<CommandResult>;
 public record GetAllRolesQuery : IRequest<IEnumerable<RoleDto>>;
-public record GetRoleByIdQuery(string Id) : IRequest<RoleDto?>;
+public record GetRoleByIdQuery(Guid Id) : IRequest<RoleDto?>;
 
 public class CreateRoleCommandValidator : AbstractValidator<CreateRoleCommand>
 {

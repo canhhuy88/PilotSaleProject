@@ -6,9 +6,9 @@ namespace BizI.Application.DTOs.Order;
 /// Read DTO for a sales order — returned to API, not the Domain entity.
 /// </summary>
 public record OrderDto(
-    string Id,
+    Guid Id,
     string Code,
-    string CustomerId,
+    Guid CustomerId,
     decimal TotalAmount,
     decimal Discount,
     decimal FinalAmount,
@@ -23,7 +23,7 @@ public record OrderDto(
 /// Read DTO for a single order line item.
 /// </summary>
 public record OrderItemDto(
-    string ProductId,
+    Guid ProductId,
     int Quantity,
     int ReturnedQuantity,
     decimal Price,
@@ -34,9 +34,9 @@ public record OrderItemDto(
 /// Input DTO for creating a new order.
 /// </summary>
 public record CreateOrderDto(
-    string CustomerId,
+    Guid CustomerId,
     List<CreateOrderItemDto> Items,
-    string WarehouseId,
+    Guid WarehouseId,
     decimal Discount = 0m,
     string Currency = "VND");
 
@@ -44,7 +44,7 @@ public record CreateOrderDto(
 /// Input line-item DTO inside CreateOrderDto.
 /// </summary>
 public record CreateOrderItemDto(
-    string ProductId,
+    Guid ProductId,
     int Quantity,
     decimal Price);
 
@@ -52,18 +52,18 @@ public record CreateOrderItemDto(
 /// Read DTO returned after a successful return operation.
 /// </summary>
 public record ReturnOrderResultDto(
-    string OrderId,
+    Guid OrderId,
     string Status,
     IEnumerable<ReturnItemResultDto> RemainingItems);
 
-public record ReturnItemResultDto(string ProductId, int Remaining);
+public record ReturnItemResultDto(Guid ProductId, int Remaining);
 
 /// <summary>
 /// Input DTO for returning items from an order.
 /// </summary>
 public record ReturnOrderDto(
-    string OrderId,
-    string WarehouseId,
+    Guid OrderId,
+    Guid WarehouseId,
     List<ReturnItemDto> Items);
 
-public record ReturnItemDto(string ProductId, int Quantity);
+public record ReturnItemDto(Guid ProductId, int Quantity);

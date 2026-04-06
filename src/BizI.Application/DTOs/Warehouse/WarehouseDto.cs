@@ -1,10 +1,10 @@
 namespace BizI.Application.DTOs.Warehouse;
 
 public record WarehouseDto(
-    string Id,
+    Guid Id,
     string Name,
-    string BranchId);
+    Guid BranchId);
 
-public record CreateWarehouseDto(string Name, string BranchId);
+public record CreateWarehouseDto(string Name, Guid BranchId);
 
-public record UpdateWarehouseDto(string Id, string Name, string BranchId);
+public record UpdateWarehouseDto(Guid Id, string Name, Guid BranchId);

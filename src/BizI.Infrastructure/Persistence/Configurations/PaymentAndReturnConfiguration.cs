@@ -11,7 +11,7 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
     public void Configure(EntityTypeBuilder<Payment> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.OrderId).IsRequired().HasMaxLength(36);
         entity.HasIndex(x => x.OrderId);
@@ -36,7 +36,7 @@ public class DebtConfiguration : IEntityTypeConfiguration<Debt>
     public void Configure(EntityTypeBuilder<Debt> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.CustomerId).IsRequired().HasMaxLength(36);
         entity.Property(x => x.OrderId).IsRequired().HasMaxLength(36);
@@ -69,7 +69,7 @@ public class ReturnOrderConfiguration : IEntityTypeConfiguration<ReturnOrder>
     public void Configure(EntityTypeBuilder<ReturnOrder> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.OrderId).IsRequired().HasMaxLength(36);
         entity.HasIndex(x => x.OrderId);

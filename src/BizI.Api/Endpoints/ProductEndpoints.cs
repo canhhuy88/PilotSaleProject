@@ -18,7 +18,7 @@ public static class ProductEndpoints
             Results.Ok(await mediator.Send(new GetAllProductsQuery())));
 
         // GET /api/products/{id}
-        group.MapGet("/{id}", async (string id, IMediator mediator) =>
+        group.MapGet("/{id}", async (Guid id, IMediator mediator) =>
         {
             var product = await mediator.Send(new GetProductByIdQuery(id));
             return product is not null ? Results.Ok(product) : Results.NotFound();
@@ -34,7 +34,7 @@ public static class ProductEndpoints
         });
 
         // PUT /api/products/{id}
-        group.MapPut("/{id}", async (string id, UpdateProductCommand command, IMediator mediator) =>
+        group.MapPut("/{id}", async (Guid id, UpdateProductCommand command, IMediator mediator) =>
         {
             if (id != command.Id) return Results.BadRequest("Route id does not match body id.");
             var result = await mediator.Send(command);
@@ -42,7 +42,7 @@ public static class ProductEndpoints
         });
 
         // DELETE /api/products/{id}
-        group.MapDelete("/{id}", async (string id, IMediator mediator) =>
+        group.MapDelete("/{id}", async (Guid id, IMediator mediator) =>
         {
             var result = await mediator.Send(new DeleteProductCommand(id));
             return result.Success ? Results.NoContent() : Results.BadRequest(result.Message);

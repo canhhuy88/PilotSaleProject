@@ -38,7 +38,7 @@ public class DataSeeder : IDataSeeder
                 username: "admin",
                 passwordHash: passwordHash,
                 fullName: "System Admin",
-                roleId: "Admin");
+                roleId: Guid.NewGuid());
 
             await _userRepo.AddAsync(user);
         }
@@ -46,7 +46,7 @@ public class DataSeeder : IDataSeeder
 
     private async Task SeedCustomersAsync()
     {
-        var walkin = await _customerRepo.GetByIdAsync("WALKIN");
+        var walkin = (await _customerRepo.GetAllAsync()).FirstOrDefault(c => c.Name == "Walk-In Customer");
         if (walkin is null)
         {
             // ✅ Use domain factory CreateWalkIn() — respects private setters
@@ -67,7 +67,7 @@ public class DataSeeder : IDataSeeder
                 costPrice: 80_000m,
                 salePrice: 100_000m,
                 unit: "pcs",
-                categoryId: "default");
+                categoryId: Guid.NewGuid());
 
             var p2 = Product.Create(
                 name: "Sample Product 2",
@@ -75,7 +75,7 @@ public class DataSeeder : IDataSeeder
                 costPrice: 150_000m,
                 salePrice: 200_000m,
                 unit: "pcs",
-                categoryId: "default");
+                categoryId: Guid.NewGuid());
 
             await _productRepo.AddAsync(p1);
             await _productRepo.AddAsync(p2);

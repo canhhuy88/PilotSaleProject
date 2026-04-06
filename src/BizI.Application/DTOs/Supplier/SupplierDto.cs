@@ -1,7 +1,7 @@
 namespace BizI.Application.DTOs.Supplier;
 
 public record SupplierDto(
-    string Id,
+    Guid Id,
     string Name,
     string? Phone,
     string? Address);
@@ -12,7 +12,7 @@ public record CreateSupplierDto(
     string? Address = null);
 
 public record UpdateSupplierDto(
-    string Id,
+    Guid Id,
     string Name,
     string? Phone = null,
     string? Address = null);

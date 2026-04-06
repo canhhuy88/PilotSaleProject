@@ -15,11 +15,11 @@ public static class InventoryEndpoints
             Results.Ok(await mediator.Send(new GetAllInventoryQuery())));
 
         // GET /api/inventory/product/{productId} — stock by product
-        group.MapGet("/product/{productId}", async (string productId, IMediator mediator) =>
+        group.MapGet("/product/{productId}", async (Guid productId, IMediator mediator) =>
             Results.Ok(await mediator.Send(new GetInventoryByProductQuery(productId))));
 
         // GET /api/inventory/warehouse/{warehouseId} — stock by warehouse
-        group.MapGet("/warehouse/{warehouseId}", async (string warehouseId, IMediator mediator) =>
+        group.MapGet("/warehouse/{warehouseId}", async (Guid warehouseId, IMediator mediator) =>
             Results.Ok(await mediator.Send(new GetInventoryByWarehouseQuery(warehouseId))));
 
         // POST /api/inventory/import

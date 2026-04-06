@@ -8,7 +8,7 @@ namespace BizI.Domain.Entities;
 /// </summary>
 public abstract class BaseEntity
 {
-    public string Id { get; protected set; } = Guid.NewGuid().ToString("N");
+    public Guid Id { get; protected set; } = Guid.NewGuid();
     public DateTime CreatedAt { get; protected set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; protected set; }
     public bool IsDeleted { get; protected set; }

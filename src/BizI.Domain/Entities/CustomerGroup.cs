@@ -60,23 +60,23 @@ public class CustomerGroup : BaseEntity
 /// </summary>
 public class CustomerGroupMapping : BaseEntity
 {
-    public string CustomerId { get; private set; } = string.Empty;
-    public string GroupId { get; private set; } = string.Empty;
+    public Guid CustomerId { get; private set; }
+    public Guid GroupId { get; private set; }
 
     private CustomerGroupMapping() { } // ORM
 
-    public static CustomerGroupMapping Create(string customerId, string groupId)
+    public static CustomerGroupMapping Create(Guid customerId, Guid groupId)
     {
-        if (string.IsNullOrWhiteSpace(customerId))
+        if (customerId == Guid.Empty)
             throw new DomainException("CustomerId cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(groupId))
+        if (groupId == Guid.Empty)
             throw new DomainException("GroupId cannot be empty.");
 
         return new CustomerGroupMapping
         {
-            CustomerId = customerId.Trim(),
-            GroupId = groupId.Trim()
+            CustomerId = customerId,
+            GroupId = groupId
         };
     }
 }

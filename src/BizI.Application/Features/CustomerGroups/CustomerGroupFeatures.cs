@@ -4,10 +4,10 @@ using Microsoft.Extensions.Logging;
 namespace BizI.Application.Features.CustomerGroups;
 
 public record CreateCustomerGroupCommand(string Name, decimal DiscountPercent = 0m) : IRequest<CommandResult>;
-public record UpdateCustomerGroupCommand(string Id, string Name, decimal DiscountPercent = 0m) : IRequest<CommandResult>;
-public record DeleteCustomerGroupCommand(string Id) : IRequest<CommandResult>;
+public record UpdateCustomerGroupCommand(Guid Id, string Name, decimal DiscountPercent = 0m) : IRequest<CommandResult>;
+public record DeleteCustomerGroupCommand(Guid Id) : IRequest<CommandResult>;
 public record GetAllCustomerGroupsQuery : IRequest<IEnumerable<CustomerGroupDto>>;
-public record GetCustomerGroupByIdQuery(string Id) : IRequest<CustomerGroupDto?>;
+public record GetCustomerGroupByIdQuery(Guid Id) : IRequest<CustomerGroupDto?>;
 
 public class CreateCustomerGroupCommandValidator : AbstractValidator<CreateCustomerGroupCommand>
 {

@@ -7,19 +7,19 @@ namespace BizI.Application.Features.Categories;
 
 public record CreateCategoryCommand(
     string Name,
-    string? ParentId = null,
+    Guid? ParentId = null,
     string? Description = null) : IRequest<CommandResult>;
 
 public record UpdateCategoryCommand(
-    string Id,
+    Guid Id,
     string Name,
     string? Description = null) : IRequest<CommandResult>;
 
-public record DeleteCategoryCommand(string Id) : IRequest<CommandResult>;
+public record DeleteCategoryCommand(Guid Id) : IRequest<CommandResult>;
 
 public record GetAllCategoriesQuery : IRequest<IEnumerable<CategoryDto>>;
 
-public record GetCategoryByIdQuery(string Id) : IRequest<CategoryDto?>;
+public record GetCategoryByIdQuery(Guid Id) : IRequest<CategoryDto?>;
 
 // ── Validators ───────────────────────────────────────────────────────────────
 

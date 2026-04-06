@@ -19,7 +19,7 @@ public static class OrderEndpoints
             Results.Ok(await mediator.Send(new GetAllOrdersQuery())));
 
         // GET /api/orders/{id}
-        group.MapGet("/{id}", async (string id, IMediator mediator) =>
+        group.MapGet("/{id}", async (Guid id, IMediator mediator) =>
         {
             var result = await mediator.Send(new GetOrderQuery(id));
             return result is not null ? Results.Ok(result) : Results.NotFound();
@@ -35,14 +35,14 @@ public static class OrderEndpoints
         });
 
         // DELETE /api/orders/{id} — cancels the order
-        group.MapDelete("/{id}", async (string id, IMediator mediator) =>
+        group.MapDelete("/{id}", async (Guid id, IMediator mediator) =>
         {
             var result = await mediator.Send(new DeleteOrderCommand(id));
             return result.Success ? Results.NoContent() : Results.BadRequest(result.Message);
         });
 
         // POST /api/orders/{id}/return
-        group.MapPost("/{id}/return", async (string id, ReturnOrderCommand command, IMediator mediator) =>
+        group.MapPost("/{id}/return", async (Guid id, ReturnOrderCommand command, IMediator mediator) =>
         {
             if (id != command.OrderId) return Results.BadRequest("Route id does not match body OrderId.");
             var result = await mediator.Send(command);

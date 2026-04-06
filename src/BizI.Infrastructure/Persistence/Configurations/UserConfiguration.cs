@@ -9,7 +9,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     public void Configure(EntityTypeBuilder<User> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.Username).IsRequired().HasMaxLength(100);
         entity.HasIndex(x => x.Username).IsUnique();

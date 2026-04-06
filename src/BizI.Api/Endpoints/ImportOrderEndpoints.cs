@@ -9,7 +9,7 @@ public static class ImportOrderEndpoints
         group.MapGet("/", async (IMediator mediator) =>
             Results.Ok(await mediator.Send(new GetAllImportOrdersQuery())));
 
-        group.MapGet("/{id}", async (string id, IMediator mediator) =>
+        group.MapGet("/{id}", async (Guid id, IMediator mediator) =>
         {
             var res = await mediator.Send(new GetImportOrderByIdQuery(id));
             return res is not null ? Results.Ok(res) : Results.NotFound();
@@ -23,19 +23,19 @@ public static class ImportOrderEndpoints
                 : Results.BadRequest(result.Message);
         });
 
-        group.MapPut("/{id}/confirm", async (string id, IMediator mediator) =>
+        group.MapPut("/{id}/confirm", async (Guid id, IMediator mediator) =>
         {
             var result = await mediator.Send(new ConfirmImportOrderCommand(id));
             return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
         });
 
-        group.MapPut("/{id}/receive", async (string id, IMediator mediator) =>
+        group.MapPut("/{id}/receive", async (Guid id, IMediator mediator) =>
         {
             var result = await mediator.Send(new ReceiveImportOrderCommand(id));
             return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
         });
 
-        group.MapDelete("/{id}", async (string id, IMediator mediator) =>
+        group.MapDelete("/{id}", async (Guid id, IMediator mediator) =>
         {
             var result = await mediator.Send(new DeleteImportOrderCommand(id));
             return result.Success ? Results.NoContent() : Results.BadRequest(result.Message);

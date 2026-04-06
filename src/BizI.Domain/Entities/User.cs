@@ -11,8 +11,8 @@ public class User : BaseEntity
     public string Username { get; private set; } = string.Empty;
     public string PasswordHash { get; private set; } = string.Empty;
     public string FullName { get; private set; } = string.Empty;
-    public string RoleId { get; private set; } = string.Empty;
-    public string BranchId { get; private set; } = string.Empty;
+    public Guid RoleId { get; private set; }
+    public Guid BranchId { get; private set; }
     public bool IsActive { get; private set; } = true;
 
     private User() { } // ORM / serialization
@@ -29,8 +29,8 @@ public class User : BaseEntity
         string username,
         string passwordHash,
         string fullName,
-        string roleId,
-        string branchId = "")
+        Guid roleId,
+        Guid branchId = default)
     {
         if (string.IsNullOrWhiteSpace(username))
             throw new DomainException("Username cannot be empty.");
@@ -41,16 +41,15 @@ public class User : BaseEntity
         if (string.IsNullOrWhiteSpace(fullName))
             throw new DomainException("Full name cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(roleId))
-            throw new DomainException("RoleId cannot be empty.");
+        if (roleId == Guid.Empty) throw new DomainException("RoleId cannot be empty.");
 
         return new User
         {
             Username = username.Trim().ToLowerInvariant(),
             PasswordHash = passwordHash,
             FullName = fullName.Trim(),
-            RoleId = roleId.Trim(),
-            BranchId = branchId.Trim()
+            RoleId = roleId,
+            BranchId = branchId
         };
     }
 
@@ -59,13 +58,13 @@ public class User : BaseEntity
     // ──────────────────────────────────────────────
 
     /// <summary>Updates the user's display name and branch assignment.</summary>
-    public void UpdateProfile(string fullName, string branchId)
+    public void UpdateProfile(string fullName, Guid branchId)
     {
         if (string.IsNullOrWhiteSpace(fullName))
             throw new DomainException("Full name cannot be empty.");
 
         FullName = fullName.Trim();
-        BranchId = branchId.Trim();
+        BranchId = branchId;
         Touch();
     }
 
@@ -80,12 +79,11 @@ public class User : BaseEntity
     }
 
     /// <summary>Re-assigns the user to a different role.</summary>
-    public void AssignRole(string roleId)
+    public void AssignRole(Guid roleId)
     {
-        if (string.IsNullOrWhiteSpace(roleId))
-            throw new DomainException("RoleId cannot be empty.");
+        if (roleId == Guid.Empty) throw new DomainException("RoleId cannot be empty.");
 
-        RoleId = roleId.Trim();
+        RoleId = roleId;
         Touch();
     }
 

@@ -58,7 +58,7 @@ public class AuthService : IAuthService
             username,
             passwordHash,
             fullName: username,   // default full name = username for self-registration
-            roleId: role.ToString());
+            roleId: Guid.NewGuid());
 
         await _userRepo.AddAsync(user);
         return CommandResult.SuccessResult(user.Id);
@@ -110,9 +110,9 @@ public class AuthService : IAuthService
         {
             Subject = new ClaimsIdentity(new[]
             {
-                new Claim(ClaimTypes.Name, user.Id),
+                new Claim(ClaimTypes.Name, user.Id.ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Username),
-                new Claim(ClaimTypes.Role, user.RoleId)
+                new Claim(ClaimTypes.Role, user.RoleId.ToString())
             }),
             Expires = DateTime.UtcNow.AddMinutes(15),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),

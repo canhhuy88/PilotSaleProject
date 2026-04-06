@@ -4,7 +4,7 @@ namespace BizI.Application.Features.InventoryTransactions;
 
 public record GetAllInventoryTransactionsQuery : IRequest<IEnumerable<InventoryTransactionDto>>;
 
-public record GetInventoryTransactionByIdQuery(string Id) : IRequest<InventoryTransactionDto?>;
+public record GetInventoryTransactionByIdQuery(Guid Id) : IRequest<InventoryTransactionDto?>;
 
 public class GetAllInventoryTransactionsHandler : IRequestHandler<GetAllInventoryTransactionsQuery, IEnumerable<InventoryTransactionDto>>
 {

@@ -6,14 +6,14 @@ public record CreateUserCommand(
     string Username,
     string PasswordHash,
     string FullName,
-    string RoleId,
-    string BranchId = "") : IRequest<CommandResult>;
+    Guid RoleId,
+    Guid BranchId = default) : IRequest<CommandResult>;
 
-public record UpdateUserCommand(string Id, string FullName, string BranchId, string? NewPasswordHash = null) : IRequest<CommandResult>;
-public record AssignRoleCommand(string UserId, string RoleId) : IRequest<CommandResult>;
-public record DeleteUserCommand(string Id) : IRequest<CommandResult>;
+public record UpdateUserCommand(Guid Id, string FullName, Guid BranchId, string? NewPasswordHash = null) : IRequest<CommandResult>;
+public record AssignRoleCommand(Guid UserId, Guid RoleId) : IRequest<CommandResult>;
+public record DeleteUserCommand(Guid Id) : IRequest<CommandResult>;
 public record GetAllUsersQuery : IRequest<IEnumerable<UserDto>>;
-public record GetUserByIdQuery(string Id) : IRequest<UserDto?>;
+public record GetUserByIdQuery(Guid Id) : IRequest<UserDto?>;
 
 public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 {

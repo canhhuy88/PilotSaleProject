@@ -8,8 +8,8 @@ namespace BizI.Domain.Entities;
 /// </summary>
 public class Inventory : BaseEntity
 {
-    public string ProductId { get; private set; } = string.Empty;
-    public string WarehouseId { get; private set; } = string.Empty;
+    public Guid ProductId { get; private set; }
+    public Guid WarehouseId { get; private set; }
     public int Quantity { get; private set; }
 
     private Inventory() { } // ORM / serialization
@@ -19,12 +19,12 @@ public class Inventory : BaseEntity
     // ──────────────────────────────────────────────
 
     /// <summary>Creates an Inventory record for a product/warehouse pair.</summary>
-    public static Inventory Create(string productId, string warehouseId, int initialQuantity = 0)
+    public static Inventory Create(Guid productId, Guid warehouseId, int initialQuantity = 0)
     {
-        if (string.IsNullOrWhiteSpace(productId))
+        if (productId == Guid.Empty)
             throw new DomainException("ProductId cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(warehouseId))
+        if (warehouseId == Guid.Empty)
             throw new DomainException("WarehouseId cannot be empty.");
 
         if (initialQuantity < 0)
@@ -32,8 +32,8 @@ public class Inventory : BaseEntity
 
         return new Inventory
         {
-            ProductId = productId.Trim(),
-            WarehouseId = warehouseId.Trim(),
+            ProductId = productId,
+            WarehouseId = warehouseId,
             Quantity = initialQuantity
         };
     }

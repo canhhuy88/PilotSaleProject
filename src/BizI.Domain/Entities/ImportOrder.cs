@@ -9,7 +9,7 @@ namespace BizI.Domain.Entities;
 /// </summary>
 public class ImportOrder : BaseEntity
 {
-    public string SupplierId { get; private set; } = string.Empty;
+    public Guid SupplierId { get; private set; }
 
     /// <summary>Calculated total cost for all items in this order.</summary>
     public Money TotalAmount { get; private set; } = Money.Zero;
@@ -27,12 +27,12 @@ public class ImportOrder : BaseEntity
     // ──────────────────────────────────────────────
 
     /// <summary>Creates a new import order in Draft status.</summary>
-    public static ImportOrder Create(string supplierId, IEnumerable<ImportOrderItem>? items = null)
+    public static ImportOrder Create(Guid supplierId, IEnumerable<ImportOrderItem>? items = null)
     {
-        if (string.IsNullOrWhiteSpace(supplierId))
+        if (supplierId == Guid.Empty)
             throw new DomainException("SupplierId cannot be empty.");
 
-        var order = new ImportOrder { SupplierId = supplierId.Trim() };
+        var order = new ImportOrder { SupplierId = supplierId };
 
         if (items is not null)
             foreach (var item in items)
@@ -105,7 +105,7 @@ public class ImportOrder : BaseEntity
 /// </summary>
 public class ImportOrderItem
 {
-    public string ProductId { get; private set; } = string.Empty;
+    public Guid ProductId { get; private set; }
     public int Quantity { get; private set; }
 
     /// <summary>Unit cost paid to the supplier for this line.</summary>
@@ -113,9 +113,9 @@ public class ImportOrderItem
 
     private ImportOrderItem() { } // ORM
 
-    public static ImportOrderItem Create(string productId, int quantity, decimal costPrice, string currency = "VND")
+    public static ImportOrderItem Create(Guid productId, int quantity, decimal costPrice, string currency = "VND")
     {
-        if (string.IsNullOrWhiteSpace(productId))
+        if (productId == Guid.Empty)
             throw new DomainException("ProductId cannot be empty.");
 
         if (quantity <= 0)
@@ -123,7 +123,7 @@ public class ImportOrderItem
 
         return new ImportOrderItem
         {
-            ProductId = productId.Trim(),
+            ProductId = productId,
             Quantity = quantity,
             CostPrice = new Money(costPrice, currency)
         };

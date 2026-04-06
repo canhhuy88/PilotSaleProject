@@ -9,7 +9,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
     public void Configure(EntityTypeBuilder<Order> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.Code).IsRequired().HasMaxLength(50);
         entity.HasIndex(x => x.Code);

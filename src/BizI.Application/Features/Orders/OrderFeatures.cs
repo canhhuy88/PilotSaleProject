@@ -7,26 +7,26 @@ namespace BizI.Application.Features.Orders;
 // ── Commands/Queries ─────────────────────────────────────────────────────────
 
 public record CreateOrderCommand(
-    string CustomerId,
+    Guid CustomerId,
     List<CreateOrderItemDto> Items,
-    string WarehouseId,
+    Guid WarehouseId,
     decimal Discount = 0m,
     string Currency = "VND") : IRequest<CommandResult>;
 
-public record DeleteOrderCommand(string Id) : IRequest<CommandResult>;
+public record DeleteOrderCommand(Guid Id) : IRequest<CommandResult>;
 
-public record CompleteOrderCommand(string OrderId) : IRequest<CommandResult>;
+public record CompleteOrderCommand(Guid OrderId) : IRequest<CommandResult>;
 
-public record CancelOrderCommand(string OrderId) : IRequest<CommandResult>;
+public record CancelOrderCommand(Guid OrderId) : IRequest<CommandResult>;
 
 public record ReturnOrderCommand(
-    string OrderId,
-    string WarehouseId,
+    Guid OrderId,
+    Guid WarehouseId,
     List<ReturnItemDto> Items) : IRequest<CommandResult>;
 
 public record GetAllOrdersQuery : IRequest<IEnumerable<OrderDto>>;
 
-public record GetOrderQuery(string OrderId) : IRequest<OrderDto?>;
+public record GetOrderQuery(Guid OrderId) : IRequest<OrderDto?>;
 
 // ── Validators ───────────────────────────────────────────────────────────────
 

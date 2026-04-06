@@ -15,7 +15,7 @@ The project follows the principles of Clean Architecture to ensure separation of
 
 - **Framework**: .NET 8 (C#)
 - **Database**: **SQLite** via **Entity Framework Core**
-- **Patterns**: CQRS with [MediatR](https://github.com/jbogard/MediatR), Repository Pattern
+- **Patterns**: DDD, Clean Architecture , CQRS with [MediatR](https://github.com/jbogard/MediatR), Repository Pattern
 - **Authentication & Authorization**: JWT (JSON Web Token) for authentication and role/policy-based authorization checks + BCrypt for password hashing
 - **Validation**: [FluentValidation](https://fluentvalidation.net/)
 - **Logging**: [Serilog](https://serilog.net/)

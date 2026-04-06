@@ -15,7 +15,7 @@ public static class InventoryTransactionEndpoints
             Results.Ok(await mediator.Send(new GetAllInventoryTransactionsQuery())));
 
         // GET /api/inventory-transactions/{id}
-        group.MapGet("/{id}", async (string id, IMediator mediator) =>
+        group.MapGet("/{id}", async (Guid id, IMediator mediator) =>
         {
             var result = await mediator.Send(new GetInventoryTransactionByIdQuery(id));
             return result is not null ? Results.Ok(result) : Results.NotFound();

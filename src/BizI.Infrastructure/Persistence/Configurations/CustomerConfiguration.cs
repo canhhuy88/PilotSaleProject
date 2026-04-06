@@ -9,7 +9,7 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
     public void Configure(EntityTypeBuilder<Customer> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.Name).IsRequired().HasMaxLength(256);
         entity.Property(x => x.CustomerType).HasConversion<string>().HasMaxLength(50);

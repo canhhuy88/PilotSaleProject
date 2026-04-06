@@ -21,7 +21,7 @@ public class EfProductRepository : EfRepository<Product>, IProductRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Product>> GetByCategoryAsync(string categoryId)
+    public async Task<IEnumerable<Product>> GetByCategoryAsync(Guid categoryId)
     {
         return await DbSet
             .Where(x => x.CategoryId == categoryId && !x.IsDeleted)

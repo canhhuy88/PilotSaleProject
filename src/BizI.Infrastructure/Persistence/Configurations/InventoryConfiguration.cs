@@ -9,7 +9,7 @@ public class InventoryConfiguration : IEntityTypeConfiguration<Inventory>
     public void Configure(EntityTypeBuilder<Inventory> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.ProductId).IsRequired().HasMaxLength(36);
         entity.Property(x => x.WarehouseId).IsRequired().HasMaxLength(36);

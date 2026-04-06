@@ -2,11 +2,11 @@ using BizI.Application.DTOs.Warehouse;
 
 namespace BizI.Application.Features.Warehouses;
 
-public record CreateWarehouseCommand(string Name, string BranchId) : IRequest<CommandResult>;
-public record UpdateWarehouseCommand(string Id, string Name, string BranchId) : IRequest<CommandResult>;
-public record DeleteWarehouseCommand(string Id) : IRequest<CommandResult>;
+public record CreateWarehouseCommand(string Name, Guid BranchId) : IRequest<CommandResult>;
+public record UpdateWarehouseCommand(Guid Id, string Name, Guid BranchId) : IRequest<CommandResult>;
+public record DeleteWarehouseCommand(Guid Id) : IRequest<CommandResult>;
 public record GetAllWarehousesQuery : IRequest<IEnumerable<WarehouseDto>>;
-public record GetWarehouseByIdQuery(string Id) : IRequest<WarehouseDto?>;
+public record GetWarehouseByIdQuery(Guid Id) : IRequest<WarehouseDto?>;
 
 public class CreateWarehouseCommandValidator : AbstractValidator<CreateWarehouseCommand>
 {

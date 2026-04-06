@@ -3,10 +3,10 @@ using BizI.Application.DTOs.Supplier;
 namespace BizI.Application.Features.Suppliers;
 
 public record CreateSupplierCommand(string Name, string? Phone = null, string? Address = null) : IRequest<CommandResult>;
-public record UpdateSupplierCommand(string Id, string Name, string? Phone = null, string? Address = null) : IRequest<CommandResult>;
-public record DeleteSupplierCommand(string Id) : IRequest<CommandResult>;
+public record UpdateSupplierCommand(Guid Id, string Name, string? Phone = null, string? Address = null) : IRequest<CommandResult>;
+public record DeleteSupplierCommand(Guid Id) : IRequest<CommandResult>;
 public record GetAllSuppliersQuery : IRequest<IEnumerable<SupplierDto>>;
-public record GetSupplierByIdQuery(string Id) : IRequest<SupplierDto?>;
+public record GetSupplierByIdQuery(Guid Id) : IRequest<SupplierDto?>;
 
 public class CreateSupplierCommandValidator : AbstractValidator<CreateSupplierCommand>
 {

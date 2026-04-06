@@ -5,19 +5,19 @@ namespace BizI.Application.Features.PaymentAndReturns;
 
 // ── Commands/Queries ─────────────────────────────────────────────────────────
 
-public record CreatePaymentCommand(string OrderId, decimal Amount, string Method, string Currency = "VND") : IRequest<CommandResult>;
-public record CreateDebtCommand(string CustomerId, string OrderId, decimal Amount, string Currency = "VND") : IRequest<CommandResult>;
-public record RecordDebtPaymentCommand(string DebtId, decimal PaidAmount, string Currency = "VND") : IRequest<CommandResult>;
-public record CreateReturnOrderCommand(string OrderId, string WarehouseId, List<CreateReturnItemDto> Items, string Currency = "VND") : IRequest<CommandResult>;
-public record DeletePaymentCommand(string Id) : IRequest<CommandResult>;
-public record DeleteDebtCommand(string Id) : IRequest<CommandResult>;
-public record DeleteReturnOrderCommand(string Id) : IRequest<CommandResult>;
+public record CreatePaymentCommand(Guid OrderId, decimal Amount, string Method, string Currency = "VND") : IRequest<CommandResult>;
+public record CreateDebtCommand(Guid CustomerId, Guid OrderId, decimal Amount, string Currency = "VND") : IRequest<CommandResult>;
+public record RecordDebtPaymentCommand(Guid DebtId, decimal PaidAmount, string Currency = "VND") : IRequest<CommandResult>;
+public record CreateReturnOrderCommand(Guid OrderId, Guid WarehouseId, List<CreateReturnItemDto> Items, string Currency = "VND") : IRequest<CommandResult>;
+public record DeletePaymentCommand(Guid Id) : IRequest<CommandResult>;
+public record DeleteDebtCommand(Guid Id) : IRequest<CommandResult>;
+public record DeleteReturnOrderCommand(Guid Id) : IRequest<CommandResult>;
 public record GetAllPaymentsQuery : IRequest<IEnumerable<PaymentDto>>;
 public record GetAllDebtsQuery : IRequest<IEnumerable<DebtDto>>;
 public record GetAllReturnOrdersQuery : IRequest<IEnumerable<ReturnOrderReadDto>>;
-public record GetPaymentByIdQuery(string Id) : IRequest<PaymentDto?>;
-public record GetDebtByIdQuery(string Id) : IRequest<DebtDto?>;
-public record GetReturnOrderByIdQuery(string Id) : IRequest<ReturnOrderReadDto?>;
+public record GetPaymentByIdQuery(Guid Id) : IRequest<PaymentDto?>;
+public record GetDebtByIdQuery(Guid Id) : IRequest<DebtDto?>;
+public record GetReturnOrderByIdQuery(Guid Id) : IRequest<ReturnOrderReadDto?>;
 
 // ── Validators ───────────────────────────────────────────────────────────────
 

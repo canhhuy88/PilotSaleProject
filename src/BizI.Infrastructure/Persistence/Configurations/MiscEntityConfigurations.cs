@@ -11,7 +11,7 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
     public void Configure(EntityTypeBuilder<AuditLog> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.Action).IsRequired().HasMaxLength(100);
         entity.Property(x => x.EntityName).IsRequired().HasMaxLength(100);
@@ -32,7 +32,7 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
     public void Configure(EntityTypeBuilder<Category> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
         entity.Property(x => x.Name).IsRequired().HasMaxLength(256);
         entity.HasIndex(x => x.Name);
         entity.Property(x => x.CreatedAt);
@@ -48,7 +48,7 @@ public class CustomerGroupConfiguration : IEntityTypeConfiguration<CustomerGroup
     public void Configure(EntityTypeBuilder<CustomerGroup> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
         entity.Property(x => x.Name).IsRequired().HasMaxLength(256);
         entity.Property(x => x.CreatedAt);
         entity.Property(x => x.UpdatedAt);
@@ -63,7 +63,7 @@ public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
     public void Configure(EntityTypeBuilder<Warehouse> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
         entity.Property(x => x.Name).IsRequired().HasMaxLength(256);
         entity.Property(x => x.CreatedAt);
         entity.Property(x => x.UpdatedAt);
@@ -78,7 +78,7 @@ public class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
     public void Configure(EntityTypeBuilder<Supplier> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
         entity.Property(x => x.Name).IsRequired().HasMaxLength(256);
         entity.Property(x => x.CreatedAt);
         entity.Property(x => x.UpdatedAt);
@@ -109,7 +109,7 @@ public class ImportOrderConfiguration : IEntityTypeConfiguration<ImportOrder>
     public void Configure(EntityTypeBuilder<ImportOrder> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.SupplierId).IsRequired().HasMaxLength(36);
         entity.HasIndex(x => x.SupplierId);
@@ -167,7 +167,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
     public void Configure(EntityTypeBuilder<Role> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
         entity.Property(x => x.Name).IsRequired().HasMaxLength(100);
         entity.HasIndex(x => x.Name).IsUnique();
         entity.Property(x => x.CreatedAt);
@@ -183,7 +183,7 @@ public class StockItemConfiguration : IEntityTypeConfiguration<StockItem>
     public void Configure(EntityTypeBuilder<StockItem> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
         entity.Property(x => x.ProductId).IsRequired().HasMaxLength(36);
         entity.Property(x => x.WarehouseId).IsRequired().HasMaxLength(36);
         entity.HasIndex(x => new { x.ProductId, x.WarehouseId });
@@ -200,7 +200,7 @@ public class StockTransactionConfiguration : IEntityTypeConfiguration<StockTrans
     public void Configure(EntityTypeBuilder<StockTransaction> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
         entity.Property(x => x.CreatedAt);
         entity.Property(x => x.UpdatedAt);
         entity.Property(x => x.IsDeleted);
@@ -214,7 +214,7 @@ public class InventoryTransactionConfiguration : IEntityTypeConfiguration<Invent
     public void Configure(EntityTypeBuilder<InventoryTransaction> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
         entity.Property(x => x.CreatedAt);
         entity.Property(x => x.UpdatedAt);
         entity.Property(x => x.IsDeleted);
@@ -228,7 +228,7 @@ public class ProductVariantConfiguration : IEntityTypeConfiguration<ProductVaria
     public void Configure(EntityTypeBuilder<ProductVariant> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.ProductId).IsRequired().HasMaxLength(36);
         entity.HasIndex(x => x.ProductId);

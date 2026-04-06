@@ -6,33 +6,33 @@ namespace BizI.Application.Features.Inventory;
 // ── Commands/Queries ─────────────────────────────────────────────────────────
 
 public record ImportStockCommand(
-    string ProductId,
-    string WarehouseId,
+    Guid ProductId,
+    Guid WarehouseId,
     int Quantity,
-    string? ReferenceId = null) : IRequest<CommandResult>;
+    Guid? ReferenceId = null) : IRequest<CommandResult>;
 
 public record ExportStockCommand(
-    string ProductId,
-    string WarehouseId,
+    Guid ProductId,
+    Guid WarehouseId,
     int Quantity,
-    string? ReferenceId = null) : IRequest<CommandResult>;
+    Guid? ReferenceId = null) : IRequest<CommandResult>;
 
 public record ReturnStockCommand(
-    string ProductId,
-    string WarehouseId,
+    Guid ProductId,
+    Guid WarehouseId,
     int Quantity,
-    string? ReferenceId = null) : IRequest<CommandResult>;
+    Guid? ReferenceId = null) : IRequest<CommandResult>;
 
 public record AdjustStockCommand(
-    string ProductId,
-    string WarehouseId,
+    Guid ProductId,
+    Guid WarehouseId,
     int NewQuantity) : IRequest<CommandResult>;
 
 public record GetAllInventoryQuery : IRequest<IEnumerable<InventoryDto>>;
 
-public record GetInventoryByProductQuery(string ProductId) : IRequest<IEnumerable<InventoryDto>>;
+public record GetInventoryByProductQuery(Guid ProductId) : IRequest<IEnumerable<InventoryDto>>;
 
-public record GetInventoryByWarehouseQuery(string WarehouseId) : IRequest<IEnumerable<InventoryDto>>;
+public record GetInventoryByWarehouseQuery(Guid WarehouseId) : IRequest<IEnumerable<InventoryDto>>;
 
 // ── Validators ───────────────────────────────────────────────────────────────
 
@@ -168,7 +168,7 @@ public class GetInventoryByProductHandler : IRequestHandler<GetInventoryByProduc
 
     public async Task<IEnumerable<InventoryDto>> Handle(GetInventoryByProductQuery request, CancellationToken cancellationToken)
     {
-        var productGuid = Guid.Parse(request.ProductId);
+        var productGuid = request.ProductId;
         var records = await _inventoryRepo.GetByProductAsync(productGuid);
         return _mapper.Map<IEnumerable<InventoryDto>>(records);
     }

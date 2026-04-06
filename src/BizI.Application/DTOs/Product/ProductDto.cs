@@ -4,12 +4,12 @@ namespace BizI.Application.DTOs.Product;
 /// Read DTO returned to API callers — never exposes the Domain entity directly.
 /// </summary>
 public record ProductDto(
-    string Id,
+    Guid Id,
     string Name,
     string SKU,
     string? Description,
     string? Barcode,
-    string CategoryId,
+    Guid CategoryId,
     decimal CostPrice,
     decimal SalePrice,
     decimal GrossMarginPercent,
@@ -25,7 +25,7 @@ public record CreateProductDto(
     decimal CostPrice,
     decimal SalePrice,
     string Unit,
-    string CategoryId,
+    Guid CategoryId,
     string? Description = null,
     string? Barcode = null);
 
@@ -33,12 +33,12 @@ public record CreateProductDto(
 /// Input DTO for updating a product.
 /// </summary>
 public record UpdateProductDto(
-    string Id,
+    Guid Id,
     string Name,
     string SKU,
     decimal CostPrice,
     decimal SalePrice,
     string Unit,
-    string CategoryId,
+    Guid CategoryId,
     string? Description = null,
     string? Barcode = null);

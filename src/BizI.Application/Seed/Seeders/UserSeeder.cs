@@ -30,7 +30,7 @@ public sealed class UserSeeder
             await EnsureUserAsync("staff", "System Staff", staffRole.Id);
     }
 
-    private async Task EnsureUserAsync(string username, string fullName, string roleId)
+    private async Task EnsureUserAsync(string username, string fullName, Guid roleId)
     {
         var existing = await _userRepo.FindAsync(u => u.Username == username);
         if (existing.Any()) return;

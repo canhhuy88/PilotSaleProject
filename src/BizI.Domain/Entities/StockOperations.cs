@@ -9,8 +9,8 @@ namespace BizI.Domain.Entities;
 public class StockIn : BaseEntity
 {
     public string Code { get; private set; } = string.Empty;
-    public string SupplierId { get; private set; } = string.Empty;
-    public string WarehouseId { get; private set; } = string.Empty;
+    public Guid SupplierId { get; private set; }
+    public Guid WarehouseId { get; private set; }
 
     /// <summary>Total cost of all received items.</summary>
     public Money TotalAmount { get; private set; } = Money.Zero;
@@ -22,18 +22,18 @@ public class StockIn : BaseEntity
 
     public static StockIn Create(
         string code,
-        string supplierId,
-        string warehouseId,
+        Guid supplierId,
+        Guid warehouseId,
         IEnumerable<StockInItem> items,
         string currency = "VND")
     {
         if (string.IsNullOrWhiteSpace(code))
             throw new DomainException("StockIn code cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(supplierId))
+        if (supplierId == Guid.Empty)
             throw new DomainException("SupplierId cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(warehouseId))
+        if (warehouseId == Guid.Empty)
             throw new DomainException("WarehouseId cannot be empty.");
 
         var itemList = items?.ToList() ?? new List<StockInItem>();
@@ -43,8 +43,8 @@ public class StockIn : BaseEntity
         var stockIn = new StockIn
         {
             Code = code.Trim(),
-            SupplierId = supplierId.Trim(),
-            WarehouseId = warehouseId.Trim()
+            SupplierId = supplierId,
+            WarehouseId = warehouseId
         };
 
         foreach (var item in itemList) stockIn._items.Add(item);
@@ -61,15 +61,15 @@ public class StockIn : BaseEntity
 /// </summary>
 public class StockInItem
 {
-    public string ProductId { get; private set; } = string.Empty;
+    public Guid ProductId { get; private set; }
     public int Quantity { get; private set; }
     public Money CostPrice { get; private set; } = Money.Zero;
 
     private StockInItem() { } // ORM
 
-    public static StockInItem Create(string productId, int quantity, decimal costPrice, string currency = "VND")
+    public static StockInItem Create(Guid productId, int quantity, decimal costPrice, string currency = "VND")
     {
-        if (string.IsNullOrWhiteSpace(productId))
+        if (productId == Guid.Empty)
             throw new DomainException("ProductId cannot be empty.");
 
         if (quantity <= 0)
@@ -77,7 +77,7 @@ public class StockInItem
 
         return new StockInItem
         {
-            ProductId = productId.Trim(),
+            ProductId = productId,
             Quantity = quantity,
             CostPrice = new Money(costPrice, currency)
         };
@@ -94,7 +94,7 @@ public class StockInItem
 public class StockOut : BaseEntity
 {
     public string Code { get; private set; } = string.Empty;
-    public string WarehouseId { get; private set; } = string.Empty;
+    public Guid WarehouseId { get; private set; }
 
     /// <summary>Business reason for the stock reduction (e.g. "Damaged", "Expired").</summary>
     public string Reason { get; private set; } = string.Empty;
@@ -106,14 +106,14 @@ public class StockOut : BaseEntity
 
     public static StockOut Create(
         string code,
-        string warehouseId,
+        Guid warehouseId,
         string reason,
         IEnumerable<StockOutItem> items)
     {
         if (string.IsNullOrWhiteSpace(code))
             throw new DomainException("StockOut code cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(warehouseId))
+        if (warehouseId == Guid.Empty)
             throw new DomainException("WarehouseId cannot be empty.");
 
         if (string.IsNullOrWhiteSpace(reason))
@@ -126,7 +126,7 @@ public class StockOut : BaseEntity
         var stockOut = new StockOut
         {
             Code = code.Trim(),
-            WarehouseId = warehouseId.Trim(),
+            WarehouseId = warehouseId,
             Reason = reason.Trim()
         };
 
@@ -138,20 +138,20 @@ public class StockOut : BaseEntity
 /// <summary>Child of StockOut.</summary>
 public class StockOutItem
 {
-    public string ProductId { get; private set; } = string.Empty;
+    public Guid ProductId { get; private set; }
     public int Quantity { get; private set; }
 
     private StockOutItem() { } // ORM
 
-    public static StockOutItem Create(string productId, int quantity)
+    public static StockOutItem Create(Guid productId, int quantity)
     {
-        if (string.IsNullOrWhiteSpace(productId))
+        if (productId == Guid.Empty)
             throw new DomainException("ProductId cannot be empty.");
 
         if (quantity <= 0)
             throw new DomainException("Quantity must be positive.");
 
-        return new StockOutItem { ProductId = productId.Trim(), Quantity = quantity };
+        return new StockOutItem { ProductId = productId, Quantity = quantity };
     }
 }
 
@@ -164,8 +164,8 @@ public class StockOutItem
 /// </summary>
 public class StockTransfer : BaseEntity
 {
-    public string FromWarehouseId { get; private set; } = string.Empty;
-    public string ToWarehouseId { get; private set; } = string.Empty;
+    public Guid FromWarehouseId { get; private set; }
+    public Guid ToWarehouseId { get; private set; }
 
     private readonly List<StockTransferItem> _items = new();
     public IReadOnlyCollection<StockTransferItem> Items => _items.AsReadOnly();
@@ -173,17 +173,17 @@ public class StockTransfer : BaseEntity
     private StockTransfer() { } // ORM / serialization
 
     public static StockTransfer Create(
-        string fromWarehouseId,
-        string toWarehouseId,
+        Guid fromWarehouseId,
+        Guid toWarehouseId,
         IEnumerable<StockTransferItem> items)
     {
-        if (string.IsNullOrWhiteSpace(fromWarehouseId))
+        if (fromWarehouseId == Guid.Empty)
             throw new DomainException("FromWarehouseId cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(toWarehouseId))
+        if (toWarehouseId == Guid.Empty)
             throw new DomainException("ToWarehouseId cannot be empty.");
 
-        if (fromWarehouseId.Trim() == toWarehouseId.Trim())
+        if (fromWarehouseId == toWarehouseId)
             throw new DomainException("Source and destination warehouses must be different.");
 
         var itemList = items?.ToList() ?? new List<StockTransferItem>();
@@ -192,8 +192,8 @@ public class StockTransfer : BaseEntity
 
         var transfer = new StockTransfer
         {
-            FromWarehouseId = fromWarehouseId.Trim(),
-            ToWarehouseId = toWarehouseId.Trim()
+            FromWarehouseId = fromWarehouseId,
+            ToWarehouseId = toWarehouseId
         };
 
         foreach (var item in itemList) transfer._items.Add(item);
@@ -204,20 +204,20 @@ public class StockTransfer : BaseEntity
 /// <summary>Child of StockTransfer.</summary>
 public class StockTransferItem
 {
-    public string ProductId { get; private set; } = string.Empty;
+    public Guid ProductId { get; private set; }
     public int Quantity { get; private set; }
 
     private StockTransferItem() { } // ORM
 
-    public static StockTransferItem Create(string productId, int quantity)
+    public static StockTransferItem Create(Guid productId, int quantity)
     {
-        if (string.IsNullOrWhiteSpace(productId))
+        if (productId == Guid.Empty)
             throw new DomainException("ProductId cannot be empty.");
 
         if (quantity <= 0)
             throw new DomainException("Transfer quantity must be positive.");
 
-        return new StockTransferItem { ProductId = productId.Trim(), Quantity = quantity };
+        return new StockTransferItem { ProductId = productId, Quantity = quantity };
     }
 }
 
@@ -231,23 +231,23 @@ public class StockTransferItem
 /// </summary>
 public class StockAudit : BaseEntity
 {
-    public string WarehouseId { get; private set; } = string.Empty;
+    public Guid WarehouseId { get; private set; }
 
     private readonly List<StockAuditItem> _items = new();
     public IReadOnlyCollection<StockAuditItem> Items => _items.AsReadOnly();
 
     private StockAudit() { } // ORM / serialization
 
-    public static StockAudit Create(string warehouseId, IEnumerable<StockAuditItem> items)
+    public static StockAudit Create(Guid warehouseId, IEnumerable<StockAuditItem> items)
     {
-        if (string.IsNullOrWhiteSpace(warehouseId))
+        if (warehouseId == Guid.Empty)
             throw new DomainException("WarehouseId cannot be empty.");
 
         var itemList = items?.ToList() ?? new List<StockAuditItem>();
         if (!itemList.Any())
             throw new DomainException("A stock audit must include at least one item.");
 
-        var audit = new StockAudit { WarehouseId = warehouseId.Trim() };
+        var audit = new StockAudit { WarehouseId = warehouseId };
         foreach (var item in itemList) audit._items.Add(item);
         return audit;
     }
@@ -256,7 +256,7 @@ public class StockAudit : BaseEntity
 /// <summary>Child of StockAudit: captures the discrepancy for a single product.</summary>
 public class StockAuditItem
 {
-    public string ProductId { get; private set; } = string.Empty;
+    public Guid ProductId { get; private set; }
     public int SystemQty { get; private set; }
     public int ActualQty { get; private set; }
 
@@ -265,9 +265,9 @@ public class StockAuditItem
 
     private StockAuditItem() { } // ORM
 
-    public static StockAuditItem Create(string productId, int systemQty, int actualQty)
+    public static StockAuditItem Create(Guid productId, int systemQty, int actualQty)
     {
-        if (string.IsNullOrWhiteSpace(productId))
+        if (productId == Guid.Empty)
             throw new DomainException("ProductId cannot be empty.");
 
         if (systemQty < 0)
@@ -278,7 +278,7 @@ public class StockAuditItem
 
         return new StockAuditItem
         {
-            ProductId = productId.Trim(),
+            ProductId = productId,
             SystemQty = systemQty,
             ActualQty = actualQty
         };

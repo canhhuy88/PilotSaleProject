@@ -25,10 +25,10 @@ public class StockTransaction : BaseEntity
     public StockTransactionType Type { get; private set; }
 
     /// <summary>ID of the source document (Order, StockIn, etc.).</summary>
-    public string RefId { get; private set; } = string.Empty;
+    public Guid RefId { get; private set; }
 
-    public string ProductId { get; private set; } = string.Empty;
-    public string WarehouseId { get; private set; } = string.Empty;
+    public Guid ProductId { get; private set; }
+    public Guid WarehouseId { get; private set; }
 
     /// <summary>Units moved (always positive; direction implied by Type).</summary>
     public int Quantity { get; private set; }
@@ -48,19 +48,17 @@ public class StockTransaction : BaseEntity
     /// </summary>
     public static StockTransaction Create(
         StockTransactionType type,
-        string productId,
-        string warehouseId,
+        Guid productId,
+        Guid warehouseId,
         int quantity,
         int beforeQty,
         int afterQty,
-        string refId = "",
+        Guid refId = default,
         string createdBy = "")
     {
-        if (string.IsNullOrWhiteSpace(productId))
-            throw new DomainException("ProductId cannot be empty.");
+        if (productId == Guid.Empty) throw new DomainException("ProductId cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(warehouseId))
-            throw new DomainException("WarehouseId cannot be empty.");
+        if (warehouseId == Guid.Empty) throw new DomainException("WarehouseId cannot be empty.");
 
         if (quantity == 0)
             throw new DomainException("Transaction quantity cannot be zero.");
@@ -71,12 +69,12 @@ public class StockTransaction : BaseEntity
         return new StockTransaction
         {
             Type = type,
-            ProductId = productId.Trim(),
-            WarehouseId = warehouseId.Trim(),
+            ProductId = productId,
+            WarehouseId = warehouseId,
             Quantity = quantity,
             BeforeQty = beforeQty,
             AfterQty = afterQty,
-            RefId = refId.Trim(),
+            RefId = refId,
             CreatedBy = createdBy.Trim()
         };
     }

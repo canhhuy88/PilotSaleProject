@@ -8,23 +8,23 @@ namespace BizI.Domain.Entities;
 public class Warehouse : BaseEntity
 {
     public string Name { get; private set; } = string.Empty;
-    public string BranchId { get; private set; } = string.Empty;
+    public Guid BranchId { get; private set; }
 
     private Warehouse() { } // ORM / serialization
 
     /// <summary>Factory — creates a valid Warehouse.</summary>
-    public static Warehouse Create(string name, string branchId)
+    public static Warehouse Create(string name, Guid branchId)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("Warehouse name cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(branchId))
+        if (branchId == Guid.Empty)
             throw new DomainException("BranchId cannot be empty.");
 
         return new Warehouse
         {
             Name = name.Trim(),
-            BranchId = branchId.Trim()
+            BranchId = branchId
         };
     }
 
@@ -39,12 +39,12 @@ public class Warehouse : BaseEntity
     }
 
     /// <summary>Reassigns this warehouse to a different branch.</summary>
-    public void Reassign(string newBranchId)
+    public void Reassign(Guid newBranchId)
     {
-        if (string.IsNullOrWhiteSpace(newBranchId))
+        if (newBranchId == Guid.Empty)
             throw new DomainException("BranchId cannot be empty.");
 
-        BranchId = newBranchId.Trim();
+        BranchId = newBranchId;
         Touch();
     }
 }

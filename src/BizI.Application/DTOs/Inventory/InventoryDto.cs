@@ -6,45 +6,45 @@ namespace BizI.Application.DTOs.Inventory;
 /// Read DTO for an inventory record.
 /// </summary>
 public record InventoryDto(
-    string Id,
-    string ProductId,
-    string WarehouseId,
+    Guid Id,
+    Guid ProductId,
+    Guid WarehouseId,
     int Quantity);
 
 /// <summary>
 /// Read DTO for an inventory transaction (stock movement audit trail).
 /// </summary>
 public record InventoryTransactionDto(
-    string Id,
-    string ProductId,
-    string WarehouseId,
+    Guid Id,
+    Guid ProductId,
+    Guid WarehouseId,
     InventoryTransactionType Type,
     int Quantity,
-    string? ReferenceId,
+    Guid? ReferenceId,
     DateTime CreatedAt);
 
 /// <summary>
 /// Input DTO for importing stock into a warehouse.
 /// </summary>
 public record ImportStockDto(
-    string ProductId,
-    string WarehouseId,
+    Guid ProductId,
+    Guid WarehouseId,
     int Quantity,
-    string? ReferenceId = null);
+    Guid? ReferenceId = null);
 
 /// <summary>
 /// Input DTO for exporting stock from a warehouse.
 /// </summary>
 public record ExportStockDto(
-    string ProductId,
-    string WarehouseId,
+    Guid ProductId,
+    Guid WarehouseId,
     int Quantity,
-    string? ReferenceId = null);
+    Guid? ReferenceId = null);
 
 /// <summary>
 /// Input DTO for adjusting stock to a new absolute quantity.
 /// </summary>
 public record AdjustStockDto(
-    string ProductId,
-    string WarehouseId,
+    Guid ProductId,
+    Guid WarehouseId,
     int NewQuantity);

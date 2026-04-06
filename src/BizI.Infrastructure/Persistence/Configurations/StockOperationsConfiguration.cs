@@ -11,7 +11,7 @@ public class StockInConfiguration : IEntityTypeConfiguration<StockIn>
     public void Configure(EntityTypeBuilder<StockIn> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.Code).IsRequired().HasMaxLength(50);
         entity.Property(x => x.SupplierId).IsRequired().HasMaxLength(36);
@@ -61,7 +61,7 @@ public class StockOutConfiguration : IEntityTypeConfiguration<StockOut>
     public void Configure(EntityTypeBuilder<StockOut> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.Code).IsRequired().HasMaxLength(50);
         entity.Property(x => x.WarehouseId).IsRequired().HasMaxLength(36);
@@ -99,7 +99,7 @@ public class StockTransferConfiguration : IEntityTypeConfiguration<StockTransfer
     public void Configure(EntityTypeBuilder<StockTransfer> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.FromWarehouseId).IsRequired().HasMaxLength(36);
         entity.Property(x => x.ToWarehouseId).IsRequired().HasMaxLength(36);
@@ -136,7 +136,7 @@ public class StockAuditConfiguration : IEntityTypeConfiguration<StockAudit>
     public void Configure(EntityTypeBuilder<StockAudit> entity)
     {
         entity.HasKey(x => x.Id);
-        entity.Property(x => x.Id).HasMaxLength(36).IsRequired();
+        entity.Property(x => x.Id).IsRequired();
 
         entity.Property(x => x.WarehouseId).IsRequired().HasMaxLength(36);
         entity.Property(x => x.CreatedAt);

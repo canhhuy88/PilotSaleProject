@@ -4,15 +4,15 @@ using Microsoft.Extensions.Logging;
 namespace BizI.Application.Features.ImportOrders;
 
 public record CreateImportOrderCommand(
-    string SupplierId,
+    Guid SupplierId,
     List<CreateImportOrderItemDto> Items) : IRequest<CommandResult>;
 
-public record ConfirmImportOrderCommand(string Id) : IRequest<CommandResult>;
-public record ReceiveImportOrderCommand(string Id) : IRequest<CommandResult>;
-public record CancelImportOrderCommand(string Id) : IRequest<CommandResult>;
-public record DeleteImportOrderCommand(string Id) : IRequest<CommandResult>;
+public record ConfirmImportOrderCommand(Guid Id) : IRequest<CommandResult>;
+public record ReceiveImportOrderCommand(Guid Id) : IRequest<CommandResult>;
+public record CancelImportOrderCommand(Guid Id) : IRequest<CommandResult>;
+public record DeleteImportOrderCommand(Guid Id) : IRequest<CommandResult>;
 public record GetAllImportOrdersQuery : IRequest<IEnumerable<ImportOrderDto>>;
-public record GetImportOrderByIdQuery(string Id) : IRequest<ImportOrderDto?>;
+public record GetImportOrderByIdQuery(Guid Id) : IRequest<ImportOrderDto?>;
 
 public class CreateImportOrderCommandValidator : AbstractValidator<CreateImportOrderCommand>
 {

@@ -1,19 +1,19 @@
 namespace BizI.Application.DTOs.User;
 
 public record UserDto(
-    string Id,
+    Guid Id,
     string Username,
     string FullName,
-    string RoleId,
+    Guid RoleId,
     bool IsActive);
 
 public record CreateUserDto(
     string Username,
     string Password,
     string FullName,
-    string RoleId);
+    Guid RoleId);
 
 public record UpdateUserDto(
-    string Id,
+    Guid Id,
     string FullName,
-    string RoleId);
+    Guid RoleId);

@@ -12,28 +12,28 @@ public record CreateProductCommand(
     decimal CostPrice,
     decimal SalePrice,
     string Unit,
-    string CategoryId,
+    Guid CategoryId,
     string? Description = null,
     string? Barcode = null,
     string Currency = "VND") : IRequest<CommandResult>;
 
 public record UpdateProductCommand(
-    string Id,
+    Guid Id,
     string Name,
     string SKU,
     decimal CostPrice,
     decimal SalePrice,
     string Unit,
-    string CategoryId,
+    Guid CategoryId,
     string? Description = null,
     string? Barcode = null,
     string Currency = "VND") : IRequest<CommandResult>;
 
-public record DeleteProductCommand(string Id) : IRequest<CommandResult>;
+public record DeleteProductCommand(Guid Id) : IRequest<CommandResult>;
 
 public record GetAllProductsQuery : IRequest<IEnumerable<ProductDto>>;
 
-public record GetProductByIdQuery(string Id) : IRequest<ProductDto?>;
+public record GetProductByIdQuery(Guid Id) : IRequest<ProductDto?>;
 
 // ── Validators ───────────────────────────────────────────────────────────────
 

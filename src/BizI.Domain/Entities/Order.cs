@@ -11,7 +11,7 @@ namespace BizI.Domain.Entities;
 public class Order : BaseEntity
 {
     public string Code { get; private set; } = string.Empty;
-    public string CustomerId { get; private set; } = string.Empty;
+    public Guid CustomerId { get; private set; }
 
     /// <summary>Gross total before discount.</summary>
     public Money TotalAmount { get; private set; } = Money.Zero;
@@ -41,7 +41,7 @@ public class Order : BaseEntity
     /// </summary>
     public static Order Create(
         string code,
-        string customerId,
+        Guid customerId,
         string createdBy,
         IEnumerable<OrderItem> items,
         decimal discount = 0m,
@@ -57,7 +57,7 @@ public class Order : BaseEntity
         var order = new Order
         {
             Code = code.Trim(),
-            CustomerId = customerId.Trim(),
+            CustomerId = customerId,
             CreatedBy = createdBy.Trim(),
             Discount = new Money(discount, currency)
         };

@@ -62,7 +62,7 @@ public class Customer : BaseEntity
     public static Customer CreateWalkIn() =>
         new Customer
         {
-            Id = "WALKIN",
+            //Id = "WALKIN",
             Name = "Walk-in Customer",
             CustomerType = CustomerType.WalkIn
         };

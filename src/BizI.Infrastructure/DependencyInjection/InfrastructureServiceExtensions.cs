@@ -40,12 +40,11 @@ public static class InfrastructureServiceExtensions
 
     private static void RegisterDatabase(IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection")
-                               ?? "Data Source=app.db";
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
 
         services.AddDbContext<AppDbContext>(options =>
             // 🔁 Future-proof: swap UseSqlite → UseSqlServer / UseNpgsql here only
-            options.UseSqlite(connectionString));
+            options.UseSqlServer(connectionString));
         /*
         // SQLite (current)
         options.UseSqlite(connectionString)

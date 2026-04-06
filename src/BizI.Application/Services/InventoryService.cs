@@ -29,15 +29,15 @@ public class InventoryService : IInventoryService
     }
 
     /// <inheritdoc />
-    public async Task ImportStockAsync(string productId, string warehouseId, int quantity, string? referenceId = null)
+    public async Task ImportStockAsync(Guid productId, Guid warehouseId, int quantity, Guid? referenceId = null)
     {
         _logger.LogInformation(
             "Importing {Quantity} units. Product: {ProductId}, Warehouse: {WarehouseId}, Ref: {ReferenceId}",
             quantity, productId, warehouseId, referenceId);
 
         // Inventory.GetByProductAndWarehouseAsync expects Guid — parse from string
-        var productGuid = Guid.Parse(productId);
-        var warehouseGuid = Guid.Parse(warehouseId);
+        var productGuid = productId;
+        var warehouseGuid = warehouseId;
 
         var inventory = await _inventoryRepo.GetByProductAndWarehouseAsync(productGuid, warehouseGuid);
 
@@ -56,14 +56,14 @@ public class InventoryService : IInventoryService
     }
 
     /// <inheritdoc />
-    public async Task ExportStockAsync(string productId, string warehouseId, int quantity, string? referenceId = null)
+    public async Task ExportStockAsync(Guid productId, Guid warehouseId, int quantity, Guid? referenceId = null)
     {
         _logger.LogInformation(
             "Exporting {Quantity} units. Product: {ProductId}, Warehouse: {WarehouseId}, Ref: {ReferenceId}",
             quantity, productId, warehouseId, referenceId);
 
-        var productGuid = Guid.Parse(productId);
-        var warehouseGuid = Guid.Parse(warehouseId);
+        var productGuid = productId;
+        var warehouseGuid = warehouseId;
 
         var inventory = await _inventoryRepo.GetByProductAndWarehouseAsync(productGuid, warehouseGuid);
 
@@ -78,14 +78,14 @@ public class InventoryService : IInventoryService
     }
 
     /// <inheritdoc />
-    public async Task ReturnStockAsync(string productId, string warehouseId, int quantity, string? referenceId = null)
+    public async Task ReturnStockAsync(Guid productId, Guid warehouseId, int quantity, Guid? referenceId = null)
     {
         _logger.LogInformation(
             "Returning {Quantity} units. Product: {ProductId}, Warehouse: {WarehouseId}, Ref: {ReferenceId}",
             quantity, productId, warehouseId, referenceId);
 
-        var productGuid = Guid.Parse(productId);
-        var warehouseGuid = Guid.Parse(warehouseId);
+        var productGuid = productId;
+        var warehouseGuid = warehouseId;
 
         var inventory = await _inventoryRepo.GetByProductAndWarehouseAsync(productGuid, warehouseGuid);
 
@@ -104,14 +104,14 @@ public class InventoryService : IInventoryService
     }
 
     /// <inheritdoc />
-    public async Task AdjustStockAsync(string productId, string warehouseId, int newQuantity)
+    public async Task AdjustStockAsync(Guid productId, Guid warehouseId, int newQuantity)
     {
         _logger.LogInformation(
             "Adjusting stock to {NewQuantity}. Product: {ProductId}, Warehouse: {WarehouseId}",
             newQuantity, productId, warehouseId);
 
-        var productGuid = Guid.Parse(productId);
-        var warehouseGuid = Guid.Parse(warehouseId);
+        var productGuid = productId;
+        var warehouseGuid = warehouseId;
 
         var inventory = await _inventoryRepo.GetByProductAndWarehouseAsync(productGuid, warehouseGuid);
 
@@ -135,11 +135,11 @@ public class InventoryService : IInventoryService
     // ── Private helpers ───────────────────────────────────────────────────────
 
     private async Task RecordTransactionAsync(
-        string productId,
-        string warehouseId,
+        Guid productId,
+        Guid warehouseId,
         int quantity,
         InventoryTransactionType type,
-        string? referenceId = null)
+        Guid? referenceId = null)
     {
         // Use Domain factory — respects encapsulation (private setters)
         var transaction = InventoryTransaction.Create(

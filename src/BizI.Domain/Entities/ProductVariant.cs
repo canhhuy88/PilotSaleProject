@@ -9,7 +9,7 @@ namespace BizI.Domain.Entities;
 /// </summary>
 public class ProductVariant : BaseEntity
 {
-    public string ProductId { get; private set; } = string.Empty;
+    public Guid ProductId { get; private set; }
 
     /// <summary>
     /// Attribute bag (e.g. {"Color": "Red", "Size": "M"}).
@@ -32,14 +32,14 @@ public class ProductVariant : BaseEntity
 
     /// <summary>Creates a valid ProductVariant linked to an existing Product.</summary>
     public static ProductVariant Create(
-        string productId,
+        Guid productId,
         string sku,
         decimal price,
         Dictionary<string, string>? attributes = null,
         string? barcode = null,
         string currency = "VND")
     {
-        if (string.IsNullOrWhiteSpace(productId))
+        if (productId == Guid.Empty)
             throw new DomainException("ProductId cannot be empty.");
 
         if (string.IsNullOrWhiteSpace(sku))
@@ -47,7 +47,7 @@ public class ProductVariant : BaseEntity
 
         var variant = new ProductVariant
         {
-            ProductId = productId.Trim(),
+            ProductId = productId,
             SKU = sku.Trim().ToUpperInvariant(),
             Price = new Money(price, currency),
             Barcode = barcode?.Trim()

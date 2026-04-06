@@ -14,17 +14,17 @@ public record CreateCustomerCommand(
     decimal DebtLimit = 0m) : IRequest<CommandResult>;
 
 public record UpdateCustomerCommand(
-    string Id,
+    Guid Id,
     string Name,
     string? Phone = null,
     string? Address = null,
     decimal DebtLimit = 0m) : IRequest<CommandResult>;
 
-public record DeleteCustomerCommand(string Id) : IRequest<CommandResult>;
+public record DeleteCustomerCommand(Guid Id) : IRequest<CommandResult>;
 
 public record GetAllCustomersQuery : IRequest<IEnumerable<CustomerDto>>;
 
-public record GetCustomerByIdQuery(string Id) : IRequest<CustomerDto?>;
+public record GetCustomerByIdQuery(Guid Id) : IRequest<CustomerDto?>;
 
 // ── Validators ───────────────────────────────────────────────────────────────
 

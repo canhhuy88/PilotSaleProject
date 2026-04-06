@@ -17,7 +17,7 @@ public static class PaymentAndReturnEndpoints
         payments.MapGet("/", async (IMediator mediator) =>
             Results.Ok(await mediator.Send(new GetAllPaymentsQuery())));
 
-        payments.MapGet("/{id}", async (string id, IMediator mediator) =>
+        payments.MapGet("/{id}", async (Guid id, IMediator mediator) =>
         {
             var p = await mediator.Send(new GetPaymentByIdQuery(id));
             return p is not null ? Results.Ok(p) : Results.NotFound();
@@ -31,7 +31,7 @@ public static class PaymentAndReturnEndpoints
                 : Results.BadRequest(result.Message);
         });
 
-        payments.MapDelete("/{id}", async (string id, IMediator mediator) =>
+        payments.MapDelete("/{id}", async (Guid id, IMediator mediator) =>
         {
             var result = await mediator.Send(new DeletePaymentCommand(id));
             return result.Success ? Results.NoContent() : Results.BadRequest(result.Message);
@@ -43,7 +43,7 @@ public static class PaymentAndReturnEndpoints
         debts.MapGet("/", async (IMediator mediator) =>
             Results.Ok(await mediator.Send(new GetAllDebtsQuery())));
 
-        debts.MapGet("/{id}", async (string id, IMediator mediator) =>
+        debts.MapGet("/{id}", async (Guid id, IMediator mediator) =>
         {
             var d = await mediator.Send(new GetDebtByIdQuery(id));
             return d is not null ? Results.Ok(d) : Results.NotFound();
@@ -57,14 +57,14 @@ public static class PaymentAndReturnEndpoints
                 : Results.BadRequest(result.Message);
         });
 
-        debts.MapPost("/{id}/pay", async (string id, RecordDebtPaymentCommand command, IMediator mediator) =>
+        debts.MapPost("/{id}/pay", async (Guid id, RecordDebtPaymentCommand command, IMediator mediator) =>
         {
             if (id != command.DebtId) return Results.BadRequest("Route id does not match body DebtId.");
             var result = await mediator.Send(command);
             return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
         });
 
-        debts.MapDelete("/{id}", async (string id, IMediator mediator) =>
+        debts.MapDelete("/{id}", async (Guid id, IMediator mediator) =>
         {
             var result = await mediator.Send(new DeleteDebtCommand(id));
             return result.Success ? Results.NoContent() : Results.BadRequest(result.Message);
@@ -76,7 +76,7 @@ public static class PaymentAndReturnEndpoints
         returns.MapGet("/", async (IMediator mediator) =>
             Results.Ok(await mediator.Send(new GetAllReturnOrdersQuery())));
 
-        returns.MapGet("/{id}", async (string id, IMediator mediator) =>
+        returns.MapGet("/{id}", async (Guid id, IMediator mediator) =>
         {
             var ro = await mediator.Send(new GetReturnOrderByIdQuery(id));
             return ro is not null ? Results.Ok(ro) : Results.NotFound();
@@ -90,7 +90,7 @@ public static class PaymentAndReturnEndpoints
                 : Results.BadRequest(result.Message);
         });
 
-        returns.MapDelete("/{id}", async (string id, IMediator mediator) =>
+        returns.MapDelete("/{id}", async (Guid id, IMediator mediator) =>
         {
             var result = await mediator.Send(new DeleteReturnOrderCommand(id));
             return result.Success ? Results.NoContent() : Results.BadRequest(result.Message);

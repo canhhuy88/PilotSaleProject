@@ -9,7 +9,7 @@ public static class SupplierEndpoints
         group.MapGet("/", async (IMediator mediator) =>
             Results.Ok(await mediator.Send(new GetAllSuppliersQuery())));
 
-        group.MapGet("/{id}", async (string id, IMediator mediator) =>
+        group.MapGet("/{id}", async (Guid id, IMediator mediator) =>
         {
             var res = await mediator.Send(new GetSupplierByIdQuery(id));
             return res is not null ? Results.Ok(res) : Results.NotFound();
@@ -23,14 +23,14 @@ public static class SupplierEndpoints
                 : Results.BadRequest(result.Message);
         });
 
-        group.MapPut("/{id}", async (string id, UpdateSupplierCommand command, IMediator mediator) =>
+        group.MapPut("/{id}", async (Guid id, UpdateSupplierCommand command, IMediator mediator) =>
         {
             if (id != command.Id) return Results.BadRequest("Id mismatch");
             var result = await mediator.Send(command);
             return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
         });
 
-        group.MapDelete("/{id}", async (string id, IMediator mediator) =>
+        group.MapDelete("/{id}", async (Guid id, IMediator mediator) =>
         {
             var result = await mediator.Send(new DeleteSupplierCommand(id));
             return result.Success ? Results.NoContent() : Results.BadRequest(result.Message);

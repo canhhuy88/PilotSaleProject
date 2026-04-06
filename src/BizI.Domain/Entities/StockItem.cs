@@ -9,8 +9,8 @@ namespace BizI.Domain.Entities;
 /// </summary>
 public class StockItem : BaseEntity
 {
-    public string ProductId { get; private set; } = string.Empty;
-    public string WarehouseId { get; private set; } = string.Empty;
+    public Guid ProductId { get; private set; }
+    public Guid WarehouseId { get; private set; }
 
     /// <summary>Total physical units on hand.</summary>
     public int Quantity { get; private set; }
@@ -27,12 +27,12 @@ public class StockItem : BaseEntity
     //  Factory
     // ──────────────────────────────────────────────
 
-    public static StockItem Create(string productId, string warehouseId, int quantity = 0)
+    public static StockItem Create(Guid productId, Guid warehouseId, int quantity = 0)
     {
-        if (string.IsNullOrWhiteSpace(productId))
+        if (productId == Guid.Empty)
             throw new DomainException("ProductId cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(warehouseId))
+        if (warehouseId == Guid.Empty)
             throw new DomainException("WarehouseId cannot be empty.");
 
         if (quantity < 0)
@@ -40,8 +40,8 @@ public class StockItem : BaseEntity
 
         return new StockItem
         {
-            ProductId = productId.Trim(),
-            WarehouseId = warehouseId.Trim(),
+            ProductId = productId,
+            WarehouseId = warehouseId,
             Quantity = quantity
         };
     }

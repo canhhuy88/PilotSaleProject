@@ -12,7 +12,7 @@ public static class CustomerGroupEndpoints
             return Results.Ok(groups);
         });
 
-        group.MapGet("/{id}", async (string id, IMediator mediator) =>
+        group.MapGet("/{id}", async (Guid id, IMediator mediator) =>
         {
             var groupEntity = await mediator.Send(new GetCustomerGroupByIdQuery(id));
             return groupEntity is not null ? Results.Ok(groupEntity) : Results.NotFound();
@@ -26,14 +26,14 @@ public static class CustomerGroupEndpoints
                 : Results.BadRequest(result.Message);
         });
 
-        group.MapPut("/{id}", async (string id, UpdateCustomerGroupCommand command, IMediator mediator) =>
+        group.MapPut("/{id}", async (Guid id, UpdateCustomerGroupCommand command, IMediator mediator) =>
         {
             if (id != command.Id) return Results.BadRequest("Id mismatch");
             var result = await mediator.Send(command);
             return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
         });
 
-        group.MapDelete("/{id}", async (string id, IMediator mediator) =>
+        group.MapDelete("/{id}", async (Guid id, IMediator mediator) =>
         {
             var result = await mediator.Send(new DeleteCustomerGroupCommand(id));
             return result.Success ? Results.NoContent() : Results.BadRequest(result.Message);

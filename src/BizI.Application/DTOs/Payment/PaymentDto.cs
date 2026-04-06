@@ -1,23 +1,23 @@
 namespace BizI.Application.DTOs.Payment;
 
 public record PaymentDto(
-    string Id,
-    string OrderId,
+    Guid Id,
+    Guid OrderId,
     decimal Amount,
     string Currency,
     string Method,
     DateTime CreatedAt);
 
 public record CreatePaymentDto(
-    string OrderId,
+    Guid OrderId,
     decimal Amount,
     string Method,
     string Currency = "VND");
 
 public record DebtDto(
-    string Id,
-    string CustomerId,
-    string OrderId,
+    Guid Id,
+    Guid CustomerId,
+    Guid OrderId,
     decimal Amount,
     decimal PaidAmount,
     decimal RemainingAmount,
@@ -26,37 +26,37 @@ public record DebtDto(
     DateTime CreatedAt);
 
 public record CreateDebtDto(
-    string CustomerId,
-    string OrderId,
+    Guid CustomerId,
+    Guid OrderId,
     decimal Amount,
     string Currency = "VND");
 
 public record RecordDebtPaymentDto(
-    string DebtId,
+    Guid DebtId,
     decimal PaidAmount,
     string Currency = "VND");
 
 public record ReturnOrderReadDto(
-    string Id,
-    string OrderId,
+    Guid Id,
+    Guid OrderId,
     decimal TotalRefund,
     string Currency,
     DateTime CreatedAt,
     IReadOnlyList<ReturnItemReadDto> Items);
 
 public record ReturnItemReadDto(
-    string ProductId,
+    Guid ProductId,
     int Quantity,
     decimal RefundPrice,
     string Currency);
 
 public record CreateReturnOrderDto(
-    string OrderId,
-    string WarehouseId,
+    Guid OrderId,
+    Guid WarehouseId,
     List<CreateReturnItemDto> Items,
     string Currency = "VND");
 
 public record CreateReturnItemDto(
-    string ProductId,
+    Guid ProductId,
     int Quantity,
     decimal RefundPrice);

@@ -6,10 +6,10 @@ namespace BizI.Application.Features.AuditLogs;
 // ── DTOs ─────────────────────────────────────────────────────────────────────
 
 public record AuditLogDto(
-    string Id,
+    Guid Id,
     string Action,
     string EntityName,
-    string EntityId,
+    Guid EntityId,
     string OldData,
     string NewData,
     string CreatedBy,
@@ -20,14 +20,14 @@ public record AuditLogDto(
 public record CreateAuditLogCommand(
     string Action,
     string EntityName,
-    string EntityId,
+    Guid EntityId,
     string CreatedBy,
     string OldData = "",
     string NewData = "") : IRequest<CommandResult>;
 
 public record GetAllAuditLogsQuery : IRequest<IEnumerable<AuditLogDto>>;
 
-public record GetAuditLogByIdQuery(string Id) : IRequest<AuditLogDto?>;
+public record GetAuditLogByIdQuery(Guid Id) : IRequest<AuditLogDto?>;
 
 // ── Validators ────────────────────────────────────────────────────────────────
 

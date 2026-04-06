@@ -14,7 +14,7 @@ public class Product : BaseEntity
     public string SKU { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public string? Barcode { get; private set; }
-    public string CategoryId { get; private set; } = string.Empty;
+    public Guid CategoryId { get; private set; }
 
     /// <summary>Landed cost per unit (what we pay to the supplier).</summary>
     public Money CostPrice { get; private set; } = Money.Zero;
@@ -40,7 +40,7 @@ public class Product : BaseEntity
         decimal costPrice,
         decimal salePrice,
         string unit,
-        string categoryId,
+        Guid categoryId,
         string? description = null,
         string? barcode = null,
         string currency = "VND")
@@ -61,7 +61,7 @@ public class Product : BaseEntity
             CostPrice = new Money(costPrice, currency),
             SalePrice = new Money(salePrice, currency),
             Unit = unit.Trim(),
-            CategoryId = categoryId.Trim(),
+            CategoryId = categoryId,
             Description = description?.Trim(),
             Barcode = barcode?.Trim()
         };
@@ -78,7 +78,7 @@ public class Product : BaseEntity
         decimal costPrice,
         decimal salePrice,
         string unit,
-        string categoryId,
+        Guid categoryId,
         string? description = null,
         string? barcode = null,
         string currency = "VND")
@@ -97,7 +97,7 @@ public class Product : BaseEntity
         CostPrice = new Money(costPrice, currency);
         SalePrice = new Money(salePrice, currency);
         Unit = unit.Trim();
-        CategoryId = categoryId.Trim();
+        CategoryId = categoryId;
         Description = description?.Trim();
         Barcode = barcode?.Trim();
         Touch();

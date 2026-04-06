@@ -9,7 +9,7 @@ namespace BizI.Domain.Entities;
 /// </summary>
 public class OrderItem
 {
-    public string ProductId { get; private set; } = string.Empty;
+    public Guid ProductId { get; private set; }
     public int Quantity { get; private set; }
     public int ReturnedQuantity { get; private set; }
 
@@ -30,9 +30,9 @@ public class OrderItem
     // ──────────────────────────────────────────────
 
     /// <summary>Creates a valid order line item. Price must be non-negative.</summary>
-    public static OrderItem Create(string productId, int quantity, decimal price, string currency = "VND")
+    public static OrderItem Create(Guid productId, int quantity, decimal price, string currency = "VND")
     {
-        if (string.IsNullOrWhiteSpace(productId))
+        if (productId == Guid.Empty)
             throw new DomainException("ProductId cannot be empty.");
 
         if (quantity <= 0)
@@ -40,7 +40,7 @@ public class OrderItem
 
         return new OrderItem
         {
-            ProductId = productId.Trim(),
+            ProductId = productId,
             Quantity = quantity,
             Price = new Money(price, currency)  // Money validates price >= 0
         };

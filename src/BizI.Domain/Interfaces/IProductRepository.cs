@@ -11,7 +11,7 @@ public interface IProductRepository : IRepository<Product>
     Task<Product?> GetBySkuAsync(string sku);
 
     /// <summary>Returns all products belonging to a given category.</summary>
-    Task<IEnumerable<Product>> GetByCategoryAsync(string categoryId);
+    Task<IEnumerable<Product>> GetByCategoryAsync(Guid categoryId);
 
     /// <summary>Returns all active products.</summary>
     Task<IEnumerable<Product>> GetActiveProductsAsync();

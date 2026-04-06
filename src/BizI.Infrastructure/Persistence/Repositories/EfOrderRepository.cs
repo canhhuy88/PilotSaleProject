@@ -24,7 +24,7 @@ public class EfOrderRepository : EfRepository<Order>, IOrderRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Order>> GetByCustomerAsync(string customerId)
+    public async Task<IEnumerable<Order>> GetByCustomerAsync(Guid customerId)
     {
         return await DbSet
             .Where(x => x.CustomerId == customerId && !x.IsDeleted)

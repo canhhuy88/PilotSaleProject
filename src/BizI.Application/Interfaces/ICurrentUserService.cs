@@ -4,9 +4,9 @@ namespace BizI.Application.Interfaces;
 
 public interface ICurrentUserService
 {
-    string? UserId { get; }
+    Guid? UserId { get; }
     string? Username { get; }
-    string? RoleId { get; }
+    Guid? RoleId { get; }
     bool IsAuthenticated { get; }
     ClaimsPrincipal? User { get; }
 }

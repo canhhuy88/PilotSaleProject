@@ -1,8 +1,8 @@
 namespace BizI.Application.DTOs.ImportOrder;
 
 public record ImportOrderDto(
-    string Id,
-    string SupplierId,
+    Guid Id,
+    Guid SupplierId,
     decimal TotalAmount,
     string Currency,
     string Status,
@@ -10,17 +10,17 @@ public record ImportOrderDto(
     IReadOnlyList<ImportOrderItemDto> Items);
 
 public record ImportOrderItemDto(
-    string ProductId,
+    Guid ProductId,
     int Quantity,
     decimal CostPrice,
     string Currency);
 
 public record CreateImportOrderDto(
-    string SupplierId,
+    Guid SupplierId,
     List<CreateImportOrderItemDto> Items);
 
 public record CreateImportOrderItemDto(
-    string ProductId,
+    Guid ProductId,
     int Quantity,
     decimal CostPrice,
     string Currency = "VND");

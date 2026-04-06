@@ -15,11 +15,11 @@ public class CurrentUserService : ICurrentUserService
 
     public ClaimsPrincipal? User => _httpContextAccessor.HttpContext?.User;
 
-    public string? UserId => User?.FindFirstValue(ClaimTypes.Name);
+    public Guid? UserId => Guid.TryParse(User?.FindFirstValue(ClaimTypes.Name), out var id) ? id : null;
 
     public string? Username => User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    public string? RoleId => User?.FindFirstValue(ClaimTypes.Role);
+    public Guid? RoleId => Guid.TryParse(User?.FindFirstValue(ClaimTypes.Role), out var rid) ? rid : null;
 
     public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
 }

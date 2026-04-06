@@ -25,7 +25,7 @@ public class EfRepository<T> : IRepository<T> where T : BaseEntity
     }
 
     /// <inheritdoc />
-    public async Task<T?> GetByIdAsync(string id)
+    public async Task<T?> GetByIdAsync(Guid id)
     {
         _logger.LogDebug("Getting {Entity} by id: {Id}", typeof(T).Name, id);
         return await DbSet.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
@@ -64,7 +64,7 @@ public class EfRepository<T> : IRepository<T> where T : BaseEntity
     }
 
     /// <inheritdoc />
-    public async Task DeleteAsync(string id)
+    public async Task DeleteAsync(Guid id)
     {
         _logger.LogDebug("Soft-deleting {Entity} with id: {Id}", typeof(T).Name, id);
         var entity = await DbSet.FirstOrDefaultAsync(x => x.Id == id);

@@ -6,7 +6,7 @@ namespace BizI.Application.DTOs.Customer;
 /// Read DTO for a customer — returned to API, not the Domain entity.
 /// </summary>
 public record CustomerDto(
-    string Id,
+    Guid Id,
     string Name,
     string? Phone,
     string? Address,
@@ -33,7 +33,7 @@ public record CreateCustomerDto(
 /// Input DTO for updating a customer.
 /// </summary>
 public record UpdateCustomerDto(
-    string Id,
+    Guid Id,
     string Name,
     string? Phone = null,
     string? Address = null,

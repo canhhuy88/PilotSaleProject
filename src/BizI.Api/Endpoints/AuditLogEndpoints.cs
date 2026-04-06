@@ -9,7 +9,7 @@ public static class AuditLogEndpoints
         group.MapGet("/", async (IMediator mediator) =>
             Results.Ok(await mediator.Send(new GetAllAuditLogsQuery())));
 
-        group.MapGet("/{id}", async (string id, IMediator mediator) =>
+        group.MapGet("/{id}", async (Guid id, IMediator mediator) =>
         {
             var res = await mediator.Send(new GetAuditLogByIdQuery(id));
             return res is not null ? Results.Ok(res) : Results.NotFound();

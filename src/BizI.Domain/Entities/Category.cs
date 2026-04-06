@@ -9,7 +9,7 @@ namespace BizI.Domain.Entities;
 public class Category : BaseEntity
 {
     public string Name { get; private set; } = string.Empty;
-    public string? ParentId { get; private set; }
+    public Guid? ParentId { get; private set; }
     public string? Description { get; private set; }
 
     private Category() { } // ORM / serialization
@@ -17,7 +17,7 @@ public class Category : BaseEntity
     /// <summary>
     /// Factory method — creates a valid Category.
     /// </summary>
-    public static Category Create(string name, string? parentId = null, string? description = null)
+    public static Category Create(string name, Guid? parentId = null, string? description = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("Category name cannot be empty.");
@@ -25,7 +25,7 @@ public class Category : BaseEntity
         return new Category
         {
             Name = name.Trim(),
-            ParentId = parentId?.Trim(),
+            ParentId = parentId,
             Description = description?.Trim()
         };
     }
@@ -48,12 +48,12 @@ public class Category : BaseEntity
     }
 
     /// <summary>Moves this category under a different parent (or root).</summary>
-    public void MoveToParent(string? newParentId)
+    public void MoveToParent(Guid? newParentId)
     {
         if (newParentId == Id)
             throw new DomainException("A category cannot be its own parent.");
 
-        ParentId = newParentId?.Trim();
+        ParentId = newParentId;
         Touch();
     }
 }

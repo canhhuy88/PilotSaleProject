@@ -9,13 +9,13 @@ namespace BizI.Domain.Entities;
 /// </summary>
 public class InventoryTransaction : BaseEntity
 {
-    public string ProductId { get; private set; } = string.Empty;
-    public string WarehouseId { get; private set; } = string.Empty;
+    public Guid ProductId { get; private set; }
+    public Guid WarehouseId { get; private set; }
     public InventoryTransactionType Type { get; private set; }
     public int Quantity { get; private set; }
 
     /// <summary>Optional reference to the originating Order or ImportOrder.</summary>
-    public string? ReferenceId { get; private set; }
+    public Guid? ReferenceId { get; private set; }
 
     private InventoryTransaction() { } // ORM / serialization
 
@@ -25,16 +25,16 @@ public class InventoryTransaction : BaseEntity
 
     /// <summary>Records a single stock movement event.</summary>
     public static InventoryTransaction Create(
-        string productId,
-        string warehouseId,
+        Guid productId,
+        Guid warehouseId,
         InventoryTransactionType type,
         int quantity,
-        string? referenceId = null)
+        Guid? referenceId = null)
     {
-        if (string.IsNullOrWhiteSpace(productId))
+        if (productId == Guid.Empty)
             throw new DomainException("ProductId cannot be empty.");
 
-        if (string.IsNullOrWhiteSpace(warehouseId))
+        if (warehouseId == Guid.Empty)
             throw new DomainException("WarehouseId cannot be empty.");
 
         if (quantity == 0)
@@ -42,11 +42,11 @@ public class InventoryTransaction : BaseEntity
 
         return new InventoryTransaction
         {
-            ProductId = productId.Trim(),
-            WarehouseId = warehouseId.Trim(),
+            ProductId = productId,
+            WarehouseId = warehouseId,
             Type = type,
             Quantity = quantity,
-            ReferenceId = referenceId?.Trim()
+            ReferenceId = referenceId
         };
     }
 }

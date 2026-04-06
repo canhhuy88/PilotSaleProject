@@ -1,11 +1,11 @@
 namespace BizI.Application.DTOs.Category;
 
 public record CategoryDto(
-    string Id,
+    Guid Id,
     string Name,
-    string? ParentId,
+    Guid? ParentId,
     string? Description);
 
-public record CreateCategoryDto(string Name, string? ParentId = null, string? Description = null);
+public record CreateCategoryDto(string Name, Guid? ParentId = null, string? Description = null);
 
-public record UpdateCategoryDto(string Id, string Name, string? Description = null);
+public record UpdateCategoryDto(Guid Id, string Name, string? Description = null);
