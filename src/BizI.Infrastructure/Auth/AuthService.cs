@@ -19,11 +19,13 @@ namespace BizI.Infrastructure.Auth;
 public class AuthService : IAuthService
 {
     private readonly IRepository<User> _userRepo;
+    private readonly IRepository<RefreshToken> _refreshTokenRepo;
     private readonly IConfiguration _configuration;
 
-    public AuthService(IRepository<User> userRepo, IConfiguration configuration)
+    public AuthService(IRepository<User> userRepo, IRepository<RefreshToken> refreshTokenRepo, IConfiguration configuration)
     {
         _userRepo = userRepo;
+        _refreshTokenRepo = refreshTokenRepo;
         _configuration = configuration;
     }
 
@@ -36,8 +38,10 @@ public class AuthService : IAuthService
             return CommandResult.FailureResult("Invalid username or password");
         }
 
-        var token = GenerateJwtToken(user);
-        return CommandResult.SuccessResult(new { Token = token, Username = user.Username, Role = user.RoleId });
+        var token = GenerateJwtToken(user, out var refreshTokenEntity);
+        await _refreshTokenRepo.AddAsync(refreshTokenEntity);
+
+        return CommandResult.SuccessResult(new { AccessToken = token, RefreshToken = refreshTokenEntity.Token, Username = user.Username, Role = user.RoleId });
     }
 
     public async Task<CommandResult> RegisterAsync(string username, string password, UserRole role)
@@ -60,7 +64,44 @@ public class AuthService : IAuthService
         return CommandResult.SuccessResult(user.Id);
     }
 
-    private string GenerateJwtToken(User user)
+    public async Task<CommandResult> RefreshTokenAsync(string refreshToken)
+    {
+        var tokenEntity = (await _refreshTokenRepo.FindAsync(rt => rt.Token == refreshToken)).FirstOrDefault();
+
+        if (tokenEntity == null || tokenEntity.IsRevoked || tokenEntity.ExpiryDate <= DateTime.UtcNow)
+        {
+            return CommandResult.FailureResult("Invalid or expired refresh token");
+        }
+
+        var user = await _userRepo.GetByIdAsync(tokenEntity.UserId);
+        if (user == null)
+        {
+            return CommandResult.FailureResult("User not found");
+        }
+
+        // Revoke the old token
+        tokenEntity.Revoke();
+        await _refreshTokenRepo.UpdateAsync(tokenEntity);
+
+        // Generate new tokens
+        var accessToken = GenerateJwtToken(user, out var newRefreshTokenEntity);
+        await _refreshTokenRepo.AddAsync(newRefreshTokenEntity);
+
+        return CommandResult.SuccessResult(new { AccessToken = accessToken, RefreshToken = newRefreshTokenEntity.Token, Username = user.Username, Role = user.RoleId });
+    }
+
+    public async Task<CommandResult> RevokeTokenAsync(string refreshToken)
+    {
+        var tokenEntity = (await _refreshTokenRepo.FindAsync(rt => rt.Token == refreshToken)).FirstOrDefault();
+        if (tokenEntity == null) return CommandResult.FailureResult("Token not found");
+
+        tokenEntity.Revoke();
+        await _refreshTokenRepo.UpdateAsync(tokenEntity);
+
+        return CommandResult.SuccessResult();
+    }
+
+    private string GenerateJwtToken(User user, out RefreshToken refreshTokenEntity)
     {
         var jwtSettings = _configuration.GetSection("Jwt");
         var key = Encoding.ASCII.GetBytes(jwtSettings["Key"] ?? "super_secret_key_1234567890123456");
@@ -73,7 +114,7 @@ public class AuthService : IAuthService
                 new Claim(ClaimTypes.NameIdentifier, user.Username),
                 new Claim(ClaimTypes.Role, user.RoleId)
             }),
-            Expires = DateTime.UtcNow.AddDays(7),
+            Expires = DateTime.UtcNow.AddMinutes(15),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             Issuer = jwtSettings["Issuer"],
             Audience = jwtSettings["Audience"]
@@ -81,6 +122,10 @@ public class AuthService : IAuthService
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
+
+        var refreshTokenString = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+        refreshTokenEntity = RefreshToken.Create(user.Id, refreshTokenString, DateTime.UtcNow.AddDays(7));
+
         return tokenHandler.WriteToken(token);
     }
 }

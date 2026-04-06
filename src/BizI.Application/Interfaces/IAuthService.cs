@@ -14,4 +14,10 @@ public interface IAuthService
 
     /// <summary>Register a new user account.</summary>
     Task<CommandResult> RegisterAsync(string username, string password, UserRole role);
+
+    /// <summary>Refresh access token using refresh token.</summary>
+    Task<CommandResult> RefreshTokenAsync(string refreshToken);
+
+    /// <summary>Revoke a refresh token.</summary>
+    Task<CommandResult> RevokeTokenAsync(string refreshToken);
 }

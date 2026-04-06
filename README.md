@@ -8,15 +8,15 @@ The project follows the principles of Clean Architecture to ensure separation of
 
 - **`src.BizI.Domain`**: The core of the system. Contains entities (Product, Order, etc.), enums, and repository interfaces. No external dependencies.
 - **`src.BizI.Application`**: Business logic layer. Implements **CQRS** using **MediatR**. Contains Commands, Queries, Handlers, Validators (FluentValidation), and Service interfaces.
-- **`src.BizI.Infrastructure`**: Implementation of external concerns. Handles data access via **LiteDB**, authentication logic, and multi-tenant provider logic.
+- **`src.BizI.Infrastructure`**: Implementation of external concerns. Handles data access via **Entity Framework Core (SQLite)**, authentication logic, and multi-tenant provider logic.
 - **`src.BizI.Api`**: The entry point. ASP.NET Core Web API with Controllers, Middleware (for error handling and tenant identification), and dependency injection configuration.
 
 ## 🛠️ Tech Stack
 
 - **Framework**: .NET 8 (C#)
-- **Database**: [LiteDB](https://www.litedb.org/) (Embedded NoSQL database)
+- **Database**: **SQLite** via **Entity Framework Core**
 - **Patterns**: CQRS with [MediatR](https://github.com/jbogard/MediatR), Repository Pattern
-- **Authentication**: JWT (JSON Web Token) + BCrypt for password hashing
+- **Authentication & Authorization**: JWT (JSON Web Token) for authentication and role/policy-based authorization checks + BCrypt for password hashing
 - **Validation**: [FluentValidation](https://fluentvalidation.net/)
 - **Logging**: [Serilog](https://serilog.net/)
 - **Documentation**: Swagger/OpenAPI
@@ -50,7 +50,7 @@ The project follows the principles of Clean Architecture to ensure separation of
 
 - `src/BizI.Domain/`: `Entities`, `Enums`, `Interfaces` (Core abstractions)
 - `src/BizI.Application/`: `Commands`, `Queries`, `Handlers`, `Services`, `Validators` (Business operations)
-- `src/BizI.Infrastructure/`: `Data` (LiteDB implementation), `Auth`, `Services` (External dependencies)
+- `src/BizI.Infrastructure/`: `Data` (EF Core & SQLite implementation), `Auth`, `Services` (External dependencies)
 - `src/BizI.Api/`: `Controllers`, `Middleware`, `Program.cs` (Host)
 
 ## 🌐 API Overview
@@ -79,12 +79,13 @@ The project follows the principles of Clean Architecture to ensure separation of
 
 ## 🏢 Multi-tenant Explanation
 
-BizI uses a **Database-per-Tenant** isolation strategy implemented at a lightweight scale using **LiteDB**.
+BizI uses a **Database-per-Tenant** isolation strategy implemented at a lightweight scale using **SQLite** via **Entity Framework Core**.
 
-- When a user logs in, their `TenantId` is embedded in their JWT claim.
-- The `ITenantProvider` extracts this `TenantId` from the request.
-- The `LiteDbRepository` dynamically opens a database file named `tenant_{tenantId}.db` located in the `App_Data/` (or root) folder.
-- This ensures that data from Store A never mixes with data from Store B.
+- When a user logs in, their `TenantId` and other authorization roles/policies are embedded in their JWT claim.
+- The `ITenantProvider` and `ICurrentUserService` extract this `TenantId` and authorization info from the request.
+- The EF Core DbContext dynamically connects to a SQLite database file named `tenant_{tenantId}.db` (or a specific connection string per tenant) located in the data folder.
+- Authorization checks are performed using JWT claims to restrict access to specific endpoints or operations based on user roles.
+- This ensures that data from Store A never mixes with data from Store B, and only authorized users can perform specific actions.
 
 ## 🔄 Inventory Flow
 

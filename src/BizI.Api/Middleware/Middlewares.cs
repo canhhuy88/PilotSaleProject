@@ -1,50 +1,87 @@
 using Microsoft.AspNetCore.Http;
-using Microsoft.Win32;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace BizI.Api.Middleware;
 
-public class TenantMiddleware
+public class JwtMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly IConfiguration _configuration;
 
-    public TenantMiddleware(RequestDelegate next)
+    public JwtMiddleware(RequestDelegate next, IConfiguration configuration)
     {
         _next = next;
+        _configuration = configuration;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
-        // Allow Swagger, Scalar and other public routes if needed, but the requirement says all queries must filter.
-        if (context.Request.Path.StartsWithSegments("/swagger") ||
-            context.Request.Path.StartsWithSegments("/scalar") ||
-            context.Request.Path.StartsWithSegments("/openapi") ||
-            context.Request.Path.StartsWithSegments("/favicon.ico") ||
-            context.Request.Path.StartsWithSegments("/api/auth") ||
-            context.Request.Path.StartsWithSegments("/api/register"))
-            
+        var path = context.Request.Path;
+
+        // Bypass cho login, register và public routes
+        if (path.StartsWithSegments("/api/auth/login", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/api/auth/register", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/scalar", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/favicon.ico", StringComparison.OrdinalIgnoreCase))
         {
             await _next(context);
             return;
         }
 
-        if (!context.Request.Headers.TryGetValue("X-Tenant-Id", out var tenantIdStr))
+        var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+        if (string.IsNullOrEmpty(token))
         {
-            context.Response.StatusCode = 400; // Bad Request
-            await context.Response.WriteAsync("X-Tenant-Id header is missing");
+            context.Response.StatusCode = 401; // Unauthorized
+            await context.Response.WriteAsync("Unauthorized: Token is missing");
             return;
         }
 
-        if (!Guid.TryParse(tenantIdStr, out var tenantId))
+        try
         {
-            context.Response.StatusCode = 400;
-            await context.Response.WriteAsync("Invalid X-Tenant-Id format");
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtSection = _configuration.GetSection("Jwt");
+            var key = Encoding.ASCII.GetBytes(jwtSection["Key"] ?? "super_secret_key_12345678901234567890123456789012");
+
+            bool validateIssuer = bool.TryParse(jwtSection["ValidateIssuer"], out var vIssuer) ? vIssuer : false;
+            bool validateAudience = bool.TryParse(jwtSection["ValidateAudience"], out var vAudience) ? vAudience : false;
+
+            var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = validateIssuer, // from requirement: validate signature, expiration, issuer, audience
+                ValidIssuer = jwtSection["Issuer"],
+                ValidateAudience = validateAudience,
+                ValidAudience = jwtSection["Audience"],
+                ClockSkew = TimeSpan.Zero
+            }, out _);
+
+            // Gán User vào HttpContext cho các layer sau sử dụng (role/claim)
+            context.User = principal;
+        }
+        catch (SecurityTokenExpiredException)
+        {
+            context.Response.StatusCode = 401;
+            await context.Response.WriteAsync("Unauthorized: Token expired");
+            return;
+        }
+        catch (Exception)
+        {
+            context.Response.StatusCode = 401;
+            await context.Response.WriteAsync("Unauthorized: Invalid token");
             return;
         }
 
-        context.Items["TenantId"] = tenantId;
         await _next(context);
     }
 }

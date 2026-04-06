@@ -1,7 +1,9 @@
 using System.Text;
 using BizI.Api.Endpoints;
 using BizI.Api.Middleware;
+using BizI.Api.Services;
 using BizI.Application;
+using BizI.Application.Interfaces;
 using BizI.Application.Seed;
 using BizI.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -40,7 +42,6 @@ builder.Services.AddSwaggerGen(options =>
         }] = Array.Empty<string>()
     };
     options.AddSecurityRequirement(securityRequirement);
-    options.OperationFilter<TenantHeaderOperationFilter>();
 });
 
 // ── Application (MediatR, FluentValidation, AutoMapper, IInventoryService) ───
@@ -49,6 +50,8 @@ builder.Services.AddApplication();
 
 // ── Infrastructure (DB, Repos, Auth, TenantProvider) ─────────────────────────
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // ── Authentication ────────────────────────────────────────────────────────────
 var jwtSection = builder.Configuration.GetSection("Jwt");
@@ -98,7 +101,7 @@ if (args.Contains("--seed"))
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseSerilogRequestLogging();
 app.UseMiddleware<GlobalExceptionMiddleware>();
-app.UseMiddleware<TenantMiddleware>();
+app.UseMiddleware<JwtMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -127,22 +130,6 @@ app.MapUserEndpoints();
 app.MapAuditLogEndpoints();
 
 app.Run();
-
-// ── Swagger operation filter for tenant header ────────────────────────────────
-public class TenantHeaderOperationFilter : Swashbuckle.AspNetCore.SwaggerGen.IOperationFilter
-{
-    public void Apply(OpenApiOperation operation, Swashbuckle.AspNetCore.SwaggerGen.OperationFilterContext context)
-    {
-        operation.Parameters ??= new List<OpenApiParameter>();
-        operation.Parameters.Add(new OpenApiParameter
-        {
-            Name = "X-Tenant-Id",
-            In = ParameterLocation.Header,
-            Required = true,
-            Schema = new OpenApiSchema { Type = "string", Format = "uuid" }
-        });
-    }
-}
 
 
 //taskkill /PID 23316 /F

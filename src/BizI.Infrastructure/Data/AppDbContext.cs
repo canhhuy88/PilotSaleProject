@@ -54,6 +54,7 @@ public class AppDbContext : DbContext
     // ── Users / Roles ─────────────────────────────────────────────────────────
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     // ── Products ──────────────────────────────────────────────────────────────
     public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
