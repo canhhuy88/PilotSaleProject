@@ -1,19 +1,13 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using BizI.Application.Features.ImportOrders;
-
 namespace BizI.Api.Endpoints;
 
-public class ImportOrderEndpoints : ICarterModule
+public static class ImportOrderEndpoints
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public static void MapImportOrderEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/import-orders").WithTags("ImportOrders");
 
-        group.MapGet("/", async (IMediator mediator) => Results.Ok(await mediator.Send(new GetAllImportOrdersQuery())));
+        group.MapGet("/", async (IMediator mediator) =>
+            Results.Ok(await mediator.Send(new GetAllImportOrdersQuery())));
 
         group.MapGet("/{id}", async (string id, IMediator mediator) =>
         {
@@ -24,13 +18,20 @@ public class ImportOrderEndpoints : ICarterModule
         group.MapPost("/", async (CreateImportOrderCommand command, IMediator mediator) =>
         {
             var result = await mediator.Send(command);
-            return result.Success ? Results.Created($"/api/import-orders/{result.Id}", result) : Results.BadRequest(result.Message);
+            return result.Success
+                ? Results.Created($"/api/import-orders/{result.Id}", result)
+                : Results.BadRequest(result.Message);
         });
 
-        group.MapPut("/{id}", async (string id, UpdateImportOrderCommand command, IMediator mediator) =>
+        group.MapPut("/{id}/confirm", async (string id, IMediator mediator) =>
         {
-            if (id != command.Id) return Results.BadRequest("Id mismatch");
-            var result = await mediator.Send(command);
+            var result = await mediator.Send(new ConfirmImportOrderCommand(id));
+            return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
+        });
+
+        group.MapPut("/{id}/receive", async (string id, IMediator mediator) =>
+        {
+            var result = await mediator.Send(new ReceiveImportOrderCommand(id));
             return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
         });
 

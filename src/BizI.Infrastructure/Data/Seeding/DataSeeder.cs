@@ -1,8 +1,6 @@
 using BizI.Domain.Entities;
+using BizI.Domain.Enums;
 using BizI.Domain.Interfaces;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BizI.Infrastructure.Data.Seeding;
 
@@ -34,15 +32,13 @@ public class DataSeeder : IDataSeeder
         var users = await _userRepo.GetAllAsync();
         if (!users.Any())
         {
-            var user = new User
-            {
-                Id = "admin",
-                Username = "admin",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("123456"), // Needs proper hash in real system
-                FullName = "System Admin",
-                RoleId = "Admin",
-                IsActive = true
-            };
+            // ✅ Use Domain factory — User has private setters
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword("123456");
+            var user = User.Create(
+                username: "admin",
+                passwordHash: passwordHash,
+                fullName: "System Admin",
+                roleId: "Admin");
 
             await _userRepo.AddAsync(user);
         }
@@ -51,16 +47,10 @@ public class DataSeeder : IDataSeeder
     private async Task SeedCustomersAsync()
     {
         var walkin = await _customerRepo.GetByIdAsync("WALKIN");
-        if (walkin == null)
+        if (walkin is null)
         {
-            var customer = new Customer
-            {
-                Id = "WALKIN",
-                Name = "Walk-in Customer",
-                CustomerType = CustomerType.WALKIN,
-                Phone = ""
-            };
-
+            // ✅ Use domain factory CreateWalkIn() — respects private setters
+            var customer = Customer.CreateWalkIn();
             await _customerRepo.AddAsync(customer);
         }
     }
@@ -70,8 +60,25 @@ public class DataSeeder : IDataSeeder
         var products = await _productRepo.GetAllAsync();
         if (!products.Any())
         {
-            await _productRepo.AddAsync(new Product { Id = Guid.NewGuid().ToString("N"), Name = "Sample Product 1", SKU = "SP001", SalePrice = 100000, CostPrice = 80000 });
-            await _productRepo.AddAsync(new Product { Id = Guid.NewGuid().ToString("N"), Name = "Sample Product 2", SKU = "SP002", SalePrice = 200000, CostPrice = 150000 });
+            // ✅ Use Domain factory — Product has private setters; prices are Money VOs
+            var p1 = Product.Create(
+                name: "Sample Product 1",
+                sku: "SP001",
+                costPrice: 80_000m,
+                salePrice: 100_000m,
+                unit: "pcs",
+                categoryId: "default");
+
+            var p2 = Product.Create(
+                name: "Sample Product 2",
+                sku: "SP002",
+                costPrice: 150_000m,
+                salePrice: 200_000m,
+                unit: "pcs",
+                categoryId: "default");
+
+            await _productRepo.AddAsync(p1);
+            await _productRepo.AddAsync(p2);
         }
     }
 }

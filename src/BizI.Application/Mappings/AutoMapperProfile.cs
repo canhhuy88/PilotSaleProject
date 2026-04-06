@@ -1,54 +1,149 @@
 using AutoMapper;
+using BizI.Application.DTOs.Category;
+using BizI.Application.DTOs.Customer;
+using BizI.Application.DTOs.CustomerGroup;
+using BizI.Application.DTOs.ImportOrder;
+using BizI.Application.DTOs.Inventory;
+using BizI.Application.DTOs.Payment;
+using BizI.Application.DTOs.Role;
+using BizI.Application.DTOs.Supplier;
+using BizI.Application.DTOs.User;
+using BizI.Application.DTOs.Warehouse;
 using BizI.Domain.Entities;
 
 namespace BizI.Application.Mappings;
 
+/// <summary>
+/// AutoMapper profile mapping Domain entities → Application DTOs.
+/// Entities are NEVER exposed directly to the API layer.
+/// </summary>
 public class AutoMapperProfile : Profile
 {
     public AutoMapperProfile()
     {
-        // Category
-        CreateMap<Category, Category>(); // Placeholder for future mapping
+        // ── Product ──────────────────────────────────────────────────────────
+        // Product.CostPrice and SalePrice are Money value objects
+        CreateMap<Product, DTOs.Product.ProductDto>()
+            .ConstructUsing(p => new DTOs.Product.ProductDto(
+                p.Id, p.Name, p.SKU, p.Description, p.Barcode,
+                p.CategoryId,
+                p.CostPrice.Amount,   // Money → decimal
+                p.SalePrice.Amount,
+                p.GrossMarginPercent,
+                p.Unit, p.IsActive));
 
-        // Customer
-        CreateMap<Customer, Customer>();
-        CreateMap<CustomerGroup, CustomerGroup>();
+        // ── Category ─────────────────────────────────────────────────────────
+        // Category has: Id, Name, ParentId, Description — NO IsActive
+        CreateMap<Category, CategoryDto>()
+            .ConstructUsing(c => new CategoryDto(c.Id, c.Name, c.ParentId, c.Description));
 
-        // ImportOrder
-        CreateMap<ImportOrder, ImportOrder>();
+        // ── Customer ─────────────────────────────────────────────────────────
+        // Customer.Phone is PhoneNumber VO; ContactAddress is Address VO
+        CreateMap<Customer, CustomerDto>()
+            .ConstructUsing(c => new CustomerDto(
+                c.Id, c.Name,
+                c.Phone != null ? c.Phone.Value : null,
+                c.ContactAddress != null ? c.ContactAddress.FullAddress : null,
+                c.CustomerType, c.LoyaltyPoints, c.LoyaltyTier,
+                c.TotalSpent, c.TotalOrders, c.DebtTotal, c.DebtLimit,
+                c.LastOrderDate));
 
-        // Inventory
-        CreateMap<BizI.Domain.Entities.Inventory, BizI.Domain.Entities.Inventory>();
-        CreateMap<InventoryTransaction, InventoryTransaction>();
+        // ── CustomerGroup ─────────────────────────────────────────────────────
+        CreateMap<CustomerGroup, CustomerGroupDto>()
+            .ConstructUsing(g => new CustomerGroupDto(g.Id, g.Name, g.DiscountPercent));
 
-        // Order
-        CreateMap<Order, Order>();
-        CreateMap<Payment, Payment>();
-        CreateMap<Debt, Debt>();
-        CreateMap<ReturnOrder, ReturnOrder>();
+        // ── Order ─────────────────────────────────────────────────────────────
+        // Order amounts are Money VOs; Items is IReadOnlyCollection<OrderItem>
+        CreateMap<Order, DTOs.Order.OrderDto>()
+            .ConstructUsing(o => new DTOs.Order.OrderDto(
+                o.Id, o.Code, o.CustomerId,
+                o.TotalAmount.Amount,
+                o.Discount.Amount,
+                o.FinalAmount.Amount,
+                o.TotalAmount.Currency,
+                o.Status, o.PaymentStatus,
+                o.CreatedBy,
+                o.CreatedAt,
+                o.Items.Select(i => new DTOs.Order.OrderItemDto(
+                    i.ProductId, i.Quantity, i.ReturnedQuantity,
+                    i.Price.Amount, i.LineTotal.Amount,
+                    i.Price.Currency)).ToList()));
 
-        // Product
-        CreateMap<Product, Product>();
-        CreateMap<ProductVariant, ProductVariant>();
+        // ── ImportOrder ───────────────────────────────────────────────────────
+        CreateMap<ImportOrder, ImportOrderDto>()
+            .ConstructUsing(io => new ImportOrderDto(
+                io.Id, io.SupplierId,
+                io.TotalAmount.Amount,
+                io.TotalAmount.Currency,
+                io.Status,
+                io.CreatedAt,
+                io.Items.Select(i => new ImportOrderItemDto(
+                    i.ProductId, i.Quantity,
+                    i.CostPrice.Amount,
+                    i.CostPrice.Currency)).ToList()));
 
-        // Role
-        CreateMap<Role, Role>();
-        CreateMap<User, User>();
+        // ── Inventory ────────────────────────────────────────────────────────
+        CreateMap<Inventory, InventoryDto>()
+            .ConstructUsing(inv => new InventoryDto(
+                inv.Id, inv.ProductId, inv.WarehouseId, inv.Quantity));
 
-        // Stock
-        CreateMap<StockItem, StockItem>();
-        CreateMap<StockIn, StockIn>();
-        CreateMap<StockOut, StockOut>();
-        CreateMap<StockTransfer, StockTransfer>();
-        CreateMap<StockAudit, StockAudit>();
+        CreateMap<InventoryTransaction, InventoryTransactionDto>()
+            .ConstructUsing(t => new InventoryTransactionDto(
+                t.Id, t.ProductId, t.WarehouseId,
+                t.Type, t.Quantity, t.ReferenceId, t.CreatedAt));
 
-        // Supplier
-        CreateMap<Supplier, Supplier>();
+        // ── Payment ──────────────────────────────────────────────────────────
+        CreateMap<Payment, PaymentDto>()
+            .ConstructUsing(p => new PaymentDto(
+                p.Id, p.OrderId,
+                p.Amount.Amount,
+                p.Amount.Currency,
+                p.Method,
+                p.CreatedAt));
 
-        // Warehouse
-        CreateMap<Warehouse, Warehouse>();
+        CreateMap<Debt, DebtDto>()
+            .ConstructUsing(d => new DebtDto(
+                d.Id, d.CustomerId, d.OrderId,
+                d.Amount.Amount,
+                d.PaidAmount.Amount,
+                d.RemainingAmount.Amount,
+                d.Status,
+                d.Amount.Currency,
+                d.CreatedAt));
 
-        // AuditLog
-        CreateMap<AuditLog, AuditLog>();
+        // ReturnOrder → ReturnOrderReadDto (disambiguated name)
+        CreateMap<ReturnOrder, ReturnOrderReadDto>()
+            .ConstructUsing(ro => new ReturnOrderReadDto(
+                ro.Id, ro.OrderId,
+                ro.TotalRefund.Amount,
+                ro.TotalRefund.Currency,
+                ro.CreatedAt,
+                ro.Items.Select(i => new ReturnItemReadDto(
+                    i.ProductId, i.Quantity,
+                    i.RefundPrice.Amount,
+                    i.RefundPrice.Currency)).ToList()));
+
+        // ── Supplier ─────────────────────────────────────────────────────────
+        // Supplier has: Name, Phone (PhoneNumber VO), ContactAddress (Address VO)
+        // No Email, no IsActive in the refactored domain
+        CreateMap<Supplier, SupplierDto>()
+            .ConstructUsing(s => new SupplierDto(
+                s.Id, s.Name,
+                s.Phone != null ? s.Phone.Value : null,
+                s.ContactAddress != null ? s.ContactAddress.FullAddress : null));
+
+        // ── Warehouse ────────────────────────────────────────────────────────
+        // Warehouse has: Name, BranchId — NO Address, NO IsActive
+        CreateMap<Warehouse, WarehouseDto>()
+            .ConstructUsing(w => new WarehouseDto(w.Id, w.Name, w.BranchId));
+
+        // ── Role ─────────────────────────────────────────────────────────────
+        // Role has: Name, Permissions (list of strings) — NO Description
+        CreateMap<Role, RoleDto>()
+            .ConstructUsing(r => new RoleDto(r.Id, r.Name, r.Permissions.ToList()));
+
+        // ── User ─────────────────────────────────────────────────────────────
+        CreateMap<User, UserDto>()
+            .ConstructUsing(u => new UserDto(u.Id, u.Username, u.FullName, u.RoleId, u.IsActive));
     }
 }

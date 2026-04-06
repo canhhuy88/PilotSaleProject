@@ -1,22 +1,13 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
-using BizI.Application.Features.Customers;
-
 namespace BizI.Api.Endpoints;
 
-public class CustomerEndpoints : ICarterModule
+public static class CustomerEndpoints
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public static void MapCustomerEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/customers").WithTags("Customers");
 
-        group.MapGet("/", async (IMediator mediator, ILogger<CustomerEndpoints> logger) =>
+        group.MapGet("/", async (IMediator mediator) =>
         {
-            logger.LogInformation("Fetching all customers.");
             var customers = await mediator.Send(new GetAllCustomersQuery());
             return Results.Ok(customers);
         });
@@ -38,7 +29,6 @@ public class CustomerEndpoints : ICarterModule
         group.MapPut("/{id}", async (string id, UpdateCustomerCommand command, IMediator mediator) =>
         {
             if (id != command.Id) return Results.BadRequest("Id mismatch");
-
             var result = await mediator.Send(command);
             return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
         });

@@ -1,20 +1,13 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
-using BizI.Application.Features.Suppliers;
-
 namespace BizI.Api.Endpoints;
 
-public class SupplierEndpoints : ICarterModule
+public static class SupplierEndpoints
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public static void MapSupplierEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/suppliers").WithTags("Suppliers");
 
-        group.MapGet("/", async (IMediator mediator) => Results.Ok(await mediator.Send(new GetAllSuppliersQuery())));
+        group.MapGet("/", async (IMediator mediator) =>
+            Results.Ok(await mediator.Send(new GetAllSuppliersQuery())));
 
         group.MapGet("/{id}", async (string id, IMediator mediator) =>
         {
@@ -25,7 +18,9 @@ public class SupplierEndpoints : ICarterModule
         group.MapPost("/", async (CreateSupplierCommand command, IMediator mediator) =>
         {
             var result = await mediator.Send(command);
-            return result.Success ? Results.Created($"/api/suppliers/{result.Id}", result) : Results.BadRequest(result.Message);
+            return result.Success
+                ? Results.Created($"/api/suppliers/{result.Id}", result)
+                : Results.BadRequest(result.Message);
         });
 
         group.MapPut("/{id}", async (string id, UpdateSupplierCommand command, IMediator mediator) =>

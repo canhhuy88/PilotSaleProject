@@ -1,14 +1,20 @@
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using BizI.Domain.Entities;
-
 namespace BizI.Application.Interfaces;
 
+/// <summary>
+/// Application-level service contract for all stock movement operations.
+/// Uses domain repository interfaces only — no direct DB access.
+/// </summary>
 public interface IInventoryService
 {
-    Task ImportStockAsync(Guid productId, Guid warehouseId, int quantity, Guid? referenceId = null);
-    Task ExportStockAsync(Guid productId, Guid warehouseId, int quantity, Guid? referenceId = null);
-    Task ReturnStockAsync(Guid productId, Guid warehouseId, int quantity, Guid? referenceId = null);
-    Task AdjustStockAsync(Guid productId, Guid warehouseId, int quantity);
+    /// <summary>Increases stock for a product in a warehouse.</summary>
+    Task ImportStockAsync(string productId, string warehouseId, int quantity, string? referenceId = null);
+
+    /// <summary>Decreases stock; throws InsufficientStockException if not enough stock.</summary>
+    Task ExportStockAsync(string productId, string warehouseId, int quantity, string? referenceId = null);
+
+    /// <summary>Restores stock (e.g. customer return).</summary>
+    Task ReturnStockAsync(string productId, string warehouseId, int quantity, string? referenceId = null);
+
+    /// <summary>Sets stock to an absolute value (physical count adjustment).</summary>
+    Task AdjustStockAsync(string productId, string warehouseId, int newQuantity);
 }

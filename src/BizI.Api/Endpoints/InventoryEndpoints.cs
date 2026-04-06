@@ -1,54 +1,53 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
-using BizI.Application.Features.Inventory;
-
 namespace BizI.Api.Endpoints;
 
-public class InventoryEndpoints : ICarterModule
+/// <summary>
+/// Inventory stock-level endpoints (GET/import/export/return/adjust).
+/// All business logic is in Application.Features.Inventory via MediatR.
+/// </summary>
+public static class InventoryEndpoints
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public static void MapInventoryEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/inventory").WithTags("Inventory");
 
-        group.MapGet("/", async (System.Guid? productId, System.Guid? warehouseId, IMediator mediator) =>
-        {
-            var res = await mediator.Send(new GetInventoryQuery(productId, warehouseId));
-            return Results.Ok(res);
-        });
+        // GET /api/inventory — list all inventory records
+        group.MapGet("/", async (IMediator mediator) =>
+            Results.Ok(await mediator.Send(new GetAllInventoryQuery())));
 
-        group.MapGet("/{id}", async (string id, IMediator mediator) =>
-        {
-            var res = await mediator.Send(new GetInventoryByIdQuery(id));
-            return res is not null ? Results.Ok(res) : Results.NotFound();
-        });
+        // GET /api/inventory/product/{productId} — stock by product
+        group.MapGet("/product/{productId}", async (string productId, IMediator mediator) =>
+            Results.Ok(await mediator.Send(new GetInventoryByProductQuery(productId))));
 
+        // GET /api/inventory/warehouse/{warehouseId} — stock by warehouse
+        group.MapGet("/warehouse/{warehouseId}", async (string warehouseId, IMediator mediator) =>
+            Results.Ok(await mediator.Send(new GetInventoryByWarehouseQuery(warehouseId))));
+
+        // POST /api/inventory/import
         group.MapPost("/import", async (ImportStockCommand command, IMediator mediator) =>
         {
-            var result = await mediator.Send(command);
-            return result.Success ? Results.Ok() : Results.BadRequest(result.Message);
-        });
-
-        group.MapPost("/adjust", async (AdjustStockCommand command, IMediator mediator) =>
-        {
-            var result = await mediator.Send(command);
-            return result.Success ? Results.Ok() : Results.BadRequest(result.Message);
-        });
-
-        group.MapPut("/{id}", async (string id, UpdateInventoryCommand command, IMediator mediator) =>
-        {
-            if (id != command.Id) return Results.BadRequest("Id mismatch");
             var result = await mediator.Send(command);
             return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
         });
 
-        group.MapDelete("/{id}", async (string id, IMediator mediator) =>
+        // POST /api/inventory/export
+        group.MapPost("/export", async (ExportStockCommand command, IMediator mediator) =>
         {
-            var result = await mediator.Send(new DeleteInventoryCommand(id));
-            return result.Success ? Results.NoContent() : Results.BadRequest(result.Message);
+            var result = await mediator.Send(command);
+            return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
+        });
+
+        // POST /api/inventory/return
+        group.MapPost("/return", async (ReturnStockCommand command, IMediator mediator) =>
+        {
+            var result = await mediator.Send(command);
+            return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
+        });
+
+        // POST /api/inventory/adjust
+        group.MapPost("/adjust", async (AdjustStockCommand command, IMediator mediator) =>
+        {
+            var result = await mediator.Send(command);
+            return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
         });
     }
 }

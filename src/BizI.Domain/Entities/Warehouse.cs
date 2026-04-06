@@ -1,7 +1,50 @@
+using BizI.Domain.Exceptions;
+
 namespace BizI.Domain.Entities;
 
+/// <summary>
+/// Represents a physical warehouse location belonging to a branch.
+/// </summary>
 public class Warehouse : BaseEntity
 {
-    public string Name { get; set; } = string.Empty;
-    public string BranchId { get; set; } = string.Empty;
+    public string Name { get; private set; } = string.Empty;
+    public string BranchId { get; private set; } = string.Empty;
+
+    private Warehouse() { } // ORM / serialization
+
+    /// <summary>Factory — creates a valid Warehouse.</summary>
+    public static Warehouse Create(string name, string branchId)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new DomainException("Warehouse name cannot be empty.");
+
+        if (string.IsNullOrWhiteSpace(branchId))
+            throw new DomainException("BranchId cannot be empty.");
+
+        return new Warehouse
+        {
+            Name = name.Trim(),
+            BranchId = branchId.Trim()
+        };
+    }
+
+    /// <summary>Renames the warehouse.</summary>
+    public void Rename(string newName)
+    {
+        if (string.IsNullOrWhiteSpace(newName))
+            throw new DomainException("Warehouse name cannot be empty.");
+
+        Name = newName.Trim();
+        Touch();
+    }
+
+    /// <summary>Reassigns this warehouse to a different branch.</summary>
+    public void Reassign(string newBranchId)
+    {
+        if (string.IsNullOrWhiteSpace(newBranchId))
+            throw new DomainException("BranchId cannot be empty.");
+
+        BranchId = newBranchId.Trim();
+        Touch();
+    }
 }

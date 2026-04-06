@@ -1,79 +1,96 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using BizI.Application.Features.PaymentAndReturns;
+using MediatR;
 
 namespace BizI.Api.Endpoints;
 
-public class PaymentAndReturnEndpoints : ICarterModule
+/// <summary>
+/// Minimal API endpoints for Payment, Debt, and ReturnOrder resources.
+/// Thin endpoints — all business logic in Application layer.
+/// </summary>
+public static class PaymentAndReturnEndpoints
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public static void MapPaymentAndReturnEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/transactions").WithTags("PaymentAndReturns");
+        // ── Payments ──────────────────────────────────────────────────────────
+        var payments = app.MapGroup("/api/payments").WithTags("Payments");
 
-        // Payments
-        group.MapGet("/payments", async (IMediator mediator) => Results.Ok(await mediator.Send(new GetAllPaymentsQuery())));
-        group.MapGet("/payments/{id}", async (string id, IMediator mediator) =>
+        payments.MapGet("/", async (IMediator mediator) =>
+            Results.Ok(await mediator.Send(new GetAllPaymentsQuery())));
+
+        payments.MapGet("/{id}", async (string id, IMediator mediator) =>
         {
-            var res = await mediator.Send(new GetPaymentByIdQuery(id));
-            return res is not null ? Results.Ok(res) : Results.NotFound();
+            var p = await mediator.Send(new GetPaymentByIdQuery(id));
+            return p is not null ? Results.Ok(p) : Results.NotFound();
         });
-        group.MapPost("/payments", async (CreatePaymentCommand command, IMediator mediator) =>
+
+        payments.MapPost("/", async (CreatePaymentCommand command, IMediator mediator) =>
         {
             var result = await mediator.Send(command);
-            return result.Success ? Results.Created($"/api/transactions/payments/{result.Id}", result) : Results.BadRequest(result.Message);
+            return result.Success
+                ? Results.Created($"/api/payments/{result.Id}", result)
+                : Results.BadRequest(result.Message);
         });
-        group.MapPut("/payments/{id}", async (string id, UpdatePaymentCommand command, IMediator mediator) =>
-        {
-            if (id != command.Id) return Results.BadRequest("Id mismatch");
-            var result = await mediator.Send(command);
-            return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
-        });
-        group.MapDelete("/payments/{id}", async (string id, IMediator mediator) =>
+
+        payments.MapDelete("/{id}", async (string id, IMediator mediator) =>
         {
             var result = await mediator.Send(new DeletePaymentCommand(id));
             return result.Success ? Results.NoContent() : Results.BadRequest(result.Message);
         });
 
-        // Debts
-        group.MapGet("/debts", async (IMediator mediator) => Results.Ok(await mediator.Send(new GetAllDebtsQuery())));
-        group.MapGet("/debts/{id}", async (string id, IMediator mediator) =>
+        // ── Debts ─────────────────────────────────────────────────────────────
+        var debts = app.MapGroup("/api/debts").WithTags("Debts");
+
+        debts.MapGet("/", async (IMediator mediator) =>
+            Results.Ok(await mediator.Send(new GetAllDebtsQuery())));
+
+        debts.MapGet("/{id}", async (string id, IMediator mediator) =>
         {
-            var res = await mediator.Send(new GetDebtByIdQuery(id));
-            return res is not null ? Results.Ok(res) : Results.NotFound();
+            var d = await mediator.Send(new GetDebtByIdQuery(id));
+            return d is not null ? Results.Ok(d) : Results.NotFound();
         });
-        group.MapPost("/debts", async (CreateDebtCommand command, IMediator mediator) =>
+
+        debts.MapPost("/", async (CreateDebtCommand command, IMediator mediator) =>
         {
             var result = await mediator.Send(command);
-            return result.Success ? Results.Created($"/api/transactions/debts/{result.Id}", result) : Results.BadRequest(result.Message);
+            return result.Success
+                ? Results.Created($"/api/debts/{result.Id}", result)
+                : Results.BadRequest(result.Message);
         });
-        group.MapPut("/debts/{id}", async (string id, UpdateDebtCommand command, IMediator mediator) =>
+
+        debts.MapPost("/{id}/pay", async (string id, RecordDebtPaymentCommand command, IMediator mediator) =>
         {
-            if (id != command.Id) return Results.BadRequest("Id mismatch");
+            if (id != command.DebtId) return Results.BadRequest("Route id does not match body DebtId.");
             var result = await mediator.Send(command);
             return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
         });
-        group.MapDelete("/debts/{id}", async (string id, IMediator mediator) =>
+
+        debts.MapDelete("/{id}", async (string id, IMediator mediator) =>
         {
             var result = await mediator.Send(new DeleteDebtCommand(id));
             return result.Success ? Results.NoContent() : Results.BadRequest(result.Message);
         });
 
-        // Return Orders
-        group.MapGet("/returns", async (IMediator mediator) => Results.Ok(await mediator.Send(new GetAllReturnOrdersQuery())));
-        group.MapGet("/returns/{id}", async (string id, IMediator mediator) =>
+        // ── Return Orders ─────────────────────────────────────────────────────
+        var returns = app.MapGroup("/api/returns").WithTags("Returns");
+
+        returns.MapGet("/", async (IMediator mediator) =>
+            Results.Ok(await mediator.Send(new GetAllReturnOrdersQuery())));
+
+        returns.MapGet("/{id}", async (string id, IMediator mediator) =>
         {
-            var res = await mediator.Send(new GetReturnOrderByIdQuery(id));
-            return res is not null ? Results.Ok(res) : Results.NotFound();
+            var ro = await mediator.Send(new GetReturnOrderByIdQuery(id));
+            return ro is not null ? Results.Ok(ro) : Results.NotFound();
         });
-        group.MapPost("/returns", async (CreateReturnOrderCommand command, IMediator mediator) =>
+
+        returns.MapPost("/", async (CreateReturnOrderCommand command, IMediator mediator) =>
         {
             var result = await mediator.Send(command);
-            return result.Success ? Results.Created($"/api/transactions/returns/{result.Id}", result) : Results.BadRequest(result.Message);
+            return result.Success
+                ? Results.Created($"/api/returns/{result.Id}", result)
+                : Results.BadRequest(result.Message);
         });
-        group.MapDelete("/returns/{id}", async (string id, IMediator mediator) =>
+
+        returns.MapDelete("/{id}", async (string id, IMediator mediator) =>
         {
             var result = await mediator.Send(new DeleteReturnOrderCommand(id));
             return result.Success ? Results.NoContent() : Results.BadRequest(result.Message);

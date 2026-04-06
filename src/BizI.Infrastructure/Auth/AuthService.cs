@@ -48,15 +48,16 @@ public class AuthService : IAuthService
             return CommandResult.FailureResult("Username already exists");
         }
 
-        var user = new User
-        {
-            Username = username,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
-            RoleId = role.ToString()
-        };
+        // ✅ Use Domain factory — User has private setters
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+        var user = User.Create(
+            username,
+            passwordHash,
+            fullName: username,   // default full name = username for self-registration
+            roleId: role.ToString());
 
         await _userRepo.AddAsync(user);
-        return CommandResult.SuccessResult();
+        return CommandResult.SuccessResult(user.Id);
     }
 
     private string GenerateJwtToken(User user)

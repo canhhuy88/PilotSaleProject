@@ -1,20 +1,13 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
-using BizI.Application.Features.Users;
-
 namespace BizI.Api.Endpoints;
 
-public class UserEndpoints : ICarterModule
+public static class UserEndpoints
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public static void MapUserEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/users").WithTags("Users");
 
-        group.MapGet("/", async (IMediator mediator) => Results.Ok(await mediator.Send(new GetAllUsersQuery())));
+        group.MapGet("/", async (IMediator mediator) =>
+            Results.Ok(await mediator.Send(new GetAllUsersQuery())));
 
         group.MapGet("/{id}", async (string id, IMediator mediator) =>
         {
@@ -25,7 +18,9 @@ public class UserEndpoints : ICarterModule
         group.MapPost("/", async (CreateUserCommand command, IMediator mediator) =>
         {
             var result = await mediator.Send(command);
-            return result.Success ? Results.Created($"/api/users/{result.Id}", result) : Results.BadRequest(result.Message);
+            return result.Success
+                ? Results.Created($"/api/users/{result.Id}", result)
+                : Results.BadRequest(result.Message);
         });
 
         group.MapPut("/{id}", async (string id, UpdateUserCommand command, IMediator mediator) =>

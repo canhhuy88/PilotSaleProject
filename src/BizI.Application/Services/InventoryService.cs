@@ -1,23 +1,25 @@
-using System;
-using System.Threading.Tasks;
-using System.Linq;
 using BizI.Application.Interfaces;
 using BizI.Domain.Entities;
 using BizI.Domain.Enums;
-using BizI.Domain.Interfaces;
 using BizI.Domain.Exceptions;
+using BizI.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace BizI.Application.Services;
 
+/// <summary>
+/// Application service responsible for inventory stock management.
+/// Uses domain repository interfaces only — no direct database access.
+/// All IDs are strings to align with the refactored Domain.
+/// </summary>
 public class InventoryService : IInventoryService
 {
-    private readonly IRepository<Inventory> _inventoryRepo;
+    private readonly IInventoryRepository _inventoryRepo;
     private readonly IRepository<InventoryTransaction> _transactionRepo;
     private readonly ILogger<InventoryService> _logger;
 
     public InventoryService(
-        IRepository<Inventory> inventoryRepo,
+        IInventoryRepository inventoryRepo,
         IRepository<InventoryTransaction> transactionRepo,
         ILogger<InventoryService> logger)
     {
@@ -26,100 +28,131 @@ public class InventoryService : IInventoryService
         _logger = logger;
     }
 
-    public async Task ImportStockAsync(Guid productId, Guid warehouseId, int quantity, Guid? referenceId = null)
+    /// <inheritdoc />
+    public async Task ImportStockAsync(string productId, string warehouseId, int quantity, string? referenceId = null)
     {
-        _logger.LogInformation("Importing {Quantity} units of product {ProductId} to warehouse {WarehouseId}. Reference: {ReferenceId}",
+        _logger.LogInformation(
+            "Importing {Quantity} units. Product: {ProductId}, Warehouse: {WarehouseId}, Ref: {ReferenceId}",
             quantity, productId, warehouseId, referenceId);
 
-        var inv = (await _inventoryRepo.FindAsync(x => x.ProductId == productId && x.WarehouseId == warehouseId)).FirstOrDefault();
-        if (inv != null)
+        // Inventory.GetByProductAndWarehouseAsync expects Guid — parse from string
+        var productGuid = Guid.Parse(productId);
+        var warehouseGuid = Guid.Parse(warehouseId);
+
+        var inventory = await _inventoryRepo.GetByProductAndWarehouseAsync(productGuid, warehouseGuid);
+
+        if (inventory is not null)
         {
-            _logger.LogInformation("Existing inventory record found for product {ProductId} in warehouse {WarehouseId}. Updating quantity.", productId, warehouseId);
-            inv.Quantity += quantity;
-            await _inventoryRepo.UpdateAsync(inv);
+            inventory.AddStock(quantity);
+            await _inventoryRepo.UpdateAsync(inventory);
         }
         else
         {
-            _logger.LogInformation("No existing inventory record for product {ProductId} in warehouse {WarehouseId}. Creating new record.", productId, warehouseId);
-            await _inventoryRepo.AddAsync(new Inventory { ProductId = productId, WarehouseId = warehouseId, Quantity = quantity });
+            inventory = Inventory.Create(productId, warehouseId, quantity);
+            await _inventoryRepo.AddAsync(inventory);
         }
 
-        await CreateTransactionAsync(productId, warehouseId, quantity, InventoryTransactionType.Import, referenceId);
+        await RecordTransactionAsync(productId, warehouseId, quantity, InventoryTransactionType.Import, referenceId);
     }
 
-    public async Task ExportStockAsync(Guid productId, Guid warehouseId, int quantity, Guid? referenceId = null)
+    /// <inheritdoc />
+    public async Task ExportStockAsync(string productId, string warehouseId, int quantity, string? referenceId = null)
     {
-        _logger.LogInformation("Exporting {Quantity} units of product {ProductId} from warehouse {WarehouseId}. Reference: {ReferenceId}",
+        _logger.LogInformation(
+            "Exporting {Quantity} units. Product: {ProductId}, Warehouse: {WarehouseId}, Ref: {ReferenceId}",
             quantity, productId, warehouseId, referenceId);
 
-        var inv = (await _inventoryRepo.FindAsync(x => x.ProductId == productId && x.WarehouseId == warehouseId)).FirstOrDefault();
-        if (inv == null || inv.Quantity < quantity)
-        {
-            _logger.LogWarning("Insufficient stock for product {ProductId} in warehouse {WarehouseId}. Current stock: {CurrentQuantity}, Requested: {RequestedQuantity}",
-                productId, warehouseId, inv?.Quantity ?? 0, quantity);
-            throw new InsufficientStockException(productId);
-        }
+        var productGuid = Guid.Parse(productId);
+        var warehouseGuid = Guid.Parse(warehouseId);
 
-        inv.Quantity -= quantity;
-        await _inventoryRepo.UpdateAsync(inv);
+        var inventory = await _inventoryRepo.GetByProductAndWarehouseAsync(productGuid, warehouseGuid);
 
-        await CreateTransactionAsync(productId, warehouseId, quantity, InventoryTransactionType.Export, referenceId);
+        if (inventory is null)
+            throw new InsufficientStockException(productId, 0, quantity);
+
+        // Domain entity enforces the stock-sufficient rule.
+        inventory.DeductStock(quantity);
+        await _inventoryRepo.UpdateAsync(inventory);
+
+        await RecordTransactionAsync(productId, warehouseId, quantity, InventoryTransactionType.Export, referenceId);
     }
 
-    public async Task ReturnStockAsync(Guid productId, Guid warehouseId, int quantity, Guid? referenceId = null)
+    /// <inheritdoc />
+    public async Task ReturnStockAsync(string productId, string warehouseId, int quantity, string? referenceId = null)
     {
-        _logger.LogInformation("Returning {Quantity} units of product {ProductId} to warehouse {WarehouseId}. Reference: {ReferenceId}",
+        _logger.LogInformation(
+            "Returning {Quantity} units. Product: {ProductId}, Warehouse: {WarehouseId}, Ref: {ReferenceId}",
             quantity, productId, warehouseId, referenceId);
 
-        var inv = (await _inventoryRepo.FindAsync(x => x.ProductId == productId && x.WarehouseId == warehouseId)).FirstOrDefault();
-        if (inv != null)
+        var productGuid = Guid.Parse(productId);
+        var warehouseGuid = Guid.Parse(warehouseId);
+
+        var inventory = await _inventoryRepo.GetByProductAndWarehouseAsync(productGuid, warehouseGuid);
+
+        if (inventory is not null)
         {
-            inv.Quantity += quantity;
-            await _inventoryRepo.UpdateAsync(inv);
+            inventory.AddStock(quantity);
+            await _inventoryRepo.UpdateAsync(inventory);
         }
         else
         {
-            await _inventoryRepo.AddAsync(new Inventory { ProductId = productId, WarehouseId = warehouseId, Quantity = quantity });
+            inventory = Inventory.Create(productId, warehouseId, quantity);
+            await _inventoryRepo.AddAsync(inventory);
         }
 
-        await CreateTransactionAsync(productId, warehouseId, quantity, InventoryTransactionType.Return, referenceId);
+        await RecordTransactionAsync(productId, warehouseId, quantity, InventoryTransactionType.Return, referenceId);
     }
 
-    public async Task AdjustStockAsync(Guid productId, Guid warehouseId, int quantity)
+    /// <inheritdoc />
+    public async Task AdjustStockAsync(string productId, string warehouseId, int newQuantity)
     {
-        _logger.LogInformation("Adjusting stock for product {ProductId} in warehouse {WarehouseId} to total {Quantity}.",
-            productId, warehouseId, quantity);
+        _logger.LogInformation(
+            "Adjusting stock to {NewQuantity}. Product: {ProductId}, Warehouse: {WarehouseId}",
+            newQuantity, productId, warehouseId);
 
-        var inv = (await _inventoryRepo.FindAsync(x => x.ProductId == productId && x.WarehouseId == warehouseId)).FirstOrDefault();
+        var productGuid = Guid.Parse(productId);
+        var warehouseGuid = Guid.Parse(warehouseId);
 
-        if (inv != null)
+        var inventory = await _inventoryRepo.GetByProductAndWarehouseAsync(productGuid, warehouseGuid);
+
+        int delta;
+        if (inventory is not null)
         {
-            int change = quantity - inv.Quantity;
-            _logger.LogInformation("Stock adjustment: {OldQuantity} -> {NewQuantity} (Change: {Change})", inv.Quantity, quantity, change);
-            inv.Quantity = quantity;
-            await _inventoryRepo.UpdateAsync(inv);
-            await CreateTransactionAsync(productId, warehouseId, change, InventoryTransactionType.Adjust);
+            delta = inventory.SetQuantity(newQuantity);
+            await _inventoryRepo.UpdateAsync(inventory);
         }
         else
         {
-            _logger.LogInformation("Creating new inventory record for stock adjustment.");
-            await _inventoryRepo.AddAsync(new Inventory { ProductId = productId, WarehouseId = warehouseId, Quantity = quantity });
-            await CreateTransactionAsync(productId, warehouseId, quantity, InventoryTransactionType.Adjust);
+            inventory = Inventory.Create(productId, warehouseId, newQuantity);
+            await _inventoryRepo.AddAsync(inventory);
+            delta = newQuantity;
         }
+
+        _logger.LogInformation("Stock adjusted. Delta: {Delta}", delta);
+        await RecordTransactionAsync(productId, warehouseId, delta, InventoryTransactionType.Adjust);
     }
 
-    private async Task CreateTransactionAsync(Guid productId, Guid warehouseId, int quantity, InventoryTransactionType type, Guid? referenceId = null)
-    {
-        _logger.LogInformation("Creating inventory transaction: Type={Type}, Quantity={Quantity}, Product={ProductId}, Warehouse={WarehouseId}, Reference={ReferenceId}",
-            type, Math.Abs(quantity), productId, warehouseId, referenceId);
+    // ── Private helpers ───────────────────────────────────────────────────────
 
-        await _transactionRepo.AddAsync(new InventoryTransaction
-        {
-            ProductId = productId,
-            WarehouseId = warehouseId,
-            Quantity = Math.Abs(quantity),
-            Type = type,
-            ReferenceId = referenceId
-        });
+    private async Task RecordTransactionAsync(
+        string productId,
+        string warehouseId,
+        int quantity,
+        InventoryTransactionType type,
+        string? referenceId = null)
+    {
+        // Use Domain factory — respects encapsulation (private setters)
+        var transaction = InventoryTransaction.Create(
+            productId,
+            warehouseId,
+            type,
+            Math.Abs(quantity),
+            referenceId);
+
+        await _transactionRepo.AddAsync(transaction);
+
+        _logger.LogDebug(
+            "Inventory transaction recorded. Type: {Type}, Qty: {Qty}, Product: {ProductId}",
+            type, Math.Abs(quantity), productId);
     }
 }

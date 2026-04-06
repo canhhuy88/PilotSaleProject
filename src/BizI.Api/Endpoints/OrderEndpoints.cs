@@ -1,49 +1,50 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
+using BizI.Application.DTOs.Order;
 using BizI.Application.Features.Orders;
+using MediatR;
 
 namespace BizI.Api.Endpoints;
 
-public class OrderEndpoints : ICarterModule
+/// <summary>
+/// Minimal API endpoints for Order operations.
+/// Thin endpoints — all logic in Application layer.
+/// </summary>
+public static class OrderEndpoints
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public static void MapOrderEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/orders").WithTags("Orders");
 
-        group.MapGet("/", async (IMediator mediator) => Results.Ok(await mediator.Send(new GetAllOrdersQuery())));
+        // GET /api/orders
+        group.MapGet("/", async (IMediator mediator) =>
+            Results.Ok(await mediator.Send(new GetAllOrdersQuery())));
 
-        group.MapGet("/{id}", async (System.Guid id, IMediator mediator) =>
+        // GET /api/orders/{id}
+        group.MapGet("/{id}", async (string id, IMediator mediator) =>
         {
-            var res = await mediator.Send(new GetOrderQuery(id));
-            return res is not null ? Results.Ok(res) : Results.NotFound();
+            var result = await mediator.Send(new GetOrderQuery(id));
+            return result is not null ? Results.Ok(result) : Results.NotFound();
         });
 
+        // POST /api/orders
         group.MapPost("/", async (CreateOrderCommand command, IMediator mediator) =>
         {
             var result = await mediator.Send(command);
-            return result.Success ? Results.Created($"/api/orders/{result.Id}", result) : Results.BadRequest(result.Message);
+            return result.Success
+                ? Results.Created($"/api/orders/{result.Id}", result)
+                : Results.BadRequest(result.Message);
         });
 
-        group.MapPut("/{id}", async (string id, UpdateOrderCommand command, IMediator mediator) =>
-        {
-            if (id != command.Id) return Results.BadRequest("Id mismatch");
-            var result = await mediator.Send(command);
-            return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
-        });
-
+        // DELETE /api/orders/{id} — cancels the order
         group.MapDelete("/{id}", async (string id, IMediator mediator) =>
         {
             var result = await mediator.Send(new DeleteOrderCommand(id));
             return result.Success ? Results.NoContent() : Results.BadRequest(result.Message);
         });
 
-        group.MapPost("/{id}/return", async (System.Guid id, ReturnOrderCommand command, IMediator mediator) =>
+        // POST /api/orders/{id}/return
+        group.MapPost("/{id}/return", async (string id, ReturnOrderCommand command, IMediator mediator) =>
         {
-            if (id != command.OrderId) return Results.BadRequest("Id mismatch");
+            if (id != command.OrderId) return Results.BadRequest("Route id does not match body OrderId.");
             var result = await mediator.Send(command);
             return result.Success ? Results.Ok(result) : Results.BadRequest(result.Message);
         });

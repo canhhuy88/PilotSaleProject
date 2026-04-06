@@ -9,18 +9,21 @@ global using System.Text;
 // Microsoft
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
 
-// Third-party
+// LiteDB (Infrastructure layer only — no other layer references LiteDB directly)
 global using LiteDB;
 
-// Project
+// Domain
 global using BizI.Domain.Entities;
 global using BizI.Domain.Enums;
 global using BizI.Domain.Interfaces;
 global using BizI.Domain.Exceptions;
+
+// Application
 global using BizI.Application.Common;
 global using BizI.Application.Interfaces;
-global using BizI.Application.Features.Inventory;
-global using BizI.Application.Features.Orders;
-global using BizI.Application.Features.Products;
-global using BizI.Application.Features.Warehouses;
+
+// Infrastructure
+global using BizI.Infrastructure.Persistence.LiteDb;
+global using BizI.Infrastructure.Persistence.Repositories;

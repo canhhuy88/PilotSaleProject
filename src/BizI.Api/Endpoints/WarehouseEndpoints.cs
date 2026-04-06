@@ -1,20 +1,13 @@
-using Carter;
-using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
-using BizI.Application.Features.Warehouses;
-
 namespace BizI.Api.Endpoints;
 
-public class WarehouseEndpoints : ICarterModule
+public static class WarehouseEndpoints
 {
-    public void AddRoutes(IEndpointRouteBuilder app)
+    public static void MapWarehouseEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/warehouses").WithTags("Warehouses");
 
-        group.MapGet("/", async (IMediator mediator) => Results.Ok(await mediator.Send(new GetAllWarehousesQuery())));
+        group.MapGet("/", async (IMediator mediator) =>
+            Results.Ok(await mediator.Send(new GetAllWarehousesQuery())));
 
         group.MapGet("/{id}", async (string id, IMediator mediator) =>
         {
@@ -25,7 +18,9 @@ public class WarehouseEndpoints : ICarterModule
         group.MapPost("/", async (CreateWarehouseCommand command, IMediator mediator) =>
         {
             var result = await mediator.Send(command);
-            return result.Success ? Results.Created($"/api/warehouses/{result.Id}", result) : Results.BadRequest(result.Message);
+            return result.Success
+                ? Results.Created($"/api/warehouses/{result.Id}", result)
+                : Results.BadRequest(result.Message);
         });
 
         group.MapPut("/{id}", async (string id, UpdateWarehouseCommand command, IMediator mediator) =>

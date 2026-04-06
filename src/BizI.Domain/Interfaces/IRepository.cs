@@ -1,11 +1,12 @@
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using BizI.Domain.Entities;
 
 namespace BizI.Domain.Interfaces;
 
+/// <summary>
+/// Generic repository interface providing common CRUD operations.
+/// Implementations live in the Infrastructure layer only.
+/// </summary>
 public interface IRepository<T> where T : BaseEntity
 {
     Task<T?> GetByIdAsync(string id);
