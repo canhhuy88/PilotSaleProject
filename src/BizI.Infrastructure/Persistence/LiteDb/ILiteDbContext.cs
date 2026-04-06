@@ -1,13 +1,3 @@
-using LiteDB;
-
+// Stub — LiteDB interface replaced by EF Core (AppDbContext).
+// This file is kept only to avoid compile errors in files not yet cleaned up.
 namespace BizI.Infrastructure.Persistence.LiteDb;
-
-/// <summary>
-/// Database context abstraction — decouples the Infrastructure layer from LiteDB specifics.
-/// Future implementations (e.g. MySqlDbContext, PostgresDbContext) implement this interface
-/// without any changes to Domain, Application, or API layers.
-/// </summary>
-public interface ILiteDbContext : IDisposable
-{
-    ILiteCollection<T> GetCollection<T>(string name);
-}

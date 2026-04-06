@@ -492,3 +492,4 @@ refactor.ps1
 output.txt
 generate_missing.ps1
 
+src/BizI.Api/app.db

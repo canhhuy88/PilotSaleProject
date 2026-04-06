@@ -1,50 +1,71 @@
-using LiteDB;
 using BizI.Domain.Entities;
-using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace BizI.Infrastructure.Data;
 
-public class AppDbContext : IDisposable
+/// <summary>
+/// EF Core DbContext for the BizI application.
+/// All entity configurations are applied via Fluent API from the assembly.
+/// To switch databases: only change the provider in DI
+///   - SQLite:      options.UseSqlite(...)
+///   - SQL Server:  options.UseSqlServer(...)
+///   - PostgreSQL:  options.UseNpgsql(...)
+/// No other layer changes.
+/// </summary>
+public class AppDbContext : DbContext
 {
-    public LiteDatabase Database { get; }
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    public AppDbContext(string connectionString)
+    // ── Core aggregates ───────────────────────────────────────────────────────
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Customer> Customers => Set<Customer>();
+    public DbSet<CustomerGroup> CustomerGroups => Set<CustomerGroup>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+
+    // ── Inventory ─────────────────────────────────────────────────────────────
+    public DbSet<Inventory> Inventories => Set<Inventory>();
+    public DbSet<InventoryTransaction> InventoryTransactions => Set<InventoryTransaction>();
+
+    // ── Warehouse / Supplier / Import ─────────────────────────────────────────
+    public DbSet<Warehouse> Warehouses => Set<Warehouse>();
+    public DbSet<Supplier> Suppliers => Set<Supplier>();
+    public DbSet<ImportOrder> ImportOrders => Set<ImportOrder>();
+
+    // ── Stock operations ──────────────────────────────────────────────────────
+    public DbSet<StockItem> StockItems => Set<StockItem>();
+    public DbSet<StockTransaction> StockTransactions => Set<StockTransaction>();
+    public DbSet<StockIn> StockIns => Set<StockIn>();
+    public DbSet<StockInItem> StockInItems => Set<StockInItem>();
+    public DbSet<StockOut> StockOuts => Set<StockOut>();
+    public DbSet<StockOutItem> StockOutItems => Set<StockOutItem>();
+    public DbSet<StockTransfer> StockTransfers => Set<StockTransfer>();
+    public DbSet<StockTransferItem> StockTransferItems => Set<StockTransferItem>();
+    public DbSet<StockAudit> StockAudits => Set<StockAudit>();
+    public DbSet<StockAuditItem> StockAuditItems => Set<StockAuditItem>();
+
+    // ── Payment & Returns ─────────────────────────────────────────────────────
+    public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<Debt> Debts => Set<Debt>();
+    public DbSet<ReturnOrder> ReturnOrders => Set<ReturnOrder>();
+    public DbSet<ReturnItem> ReturnItems => Set<ReturnItem>();
+
+    // ── Users / Roles ─────────────────────────────────────────────────────────
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Role> Roles => Set<Role>();
+
+    // ── Products ──────────────────────────────────────────────────────────────
+    public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
+
+    // ── Audit ─────────────────────────────────────────────────────────────────
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        Database = new LiteDatabase(connectionString);
-        ConfigureIndices();
-    }
+        base.OnModelCreating(builder);
 
-    private void ConfigureIndices()
-    {
-        var products = Database.GetCollection<Product>("Products");
-        products.EnsureIndex(x => x.SKU, true);
-        products.EnsureIndex(x => x.Barcode);
-
-        var customers = Database.GetCollection<Customer>("Customers");
-        customers.EnsureIndex(x => x.Phone);
-
-        var orders = Database.GetCollection<Order>("Orders");
-        orders.EnsureIndex(x => x.Code);
-
-        var stockItems = Database.GetCollection<StockItem>("StockItems");
-        // LiteDB index on combination of fields
-        stockItems.EnsureIndex("ProductId_WarehouseId", $"$.{nameof(StockItem.ProductId)} + '_' + $.{nameof(StockItem.WarehouseId)}", false);
-
-        var categories = Database.GetCollection<Category>("Categories");
-        categories.EnsureIndex(x => x.Name);
-
-        var users = Database.GetCollection<User>("Users");
-        users.EnsureIndex(x => x.Username, true);
-
-        var roles = Database.GetCollection<Role>("Roles");
-        roles.EnsureIndex(x => x.Name, true);
-
-        var inventory = Database.GetCollection<BizI.Domain.Entities.Inventory>("Inventory");
-        inventory.EnsureIndex("ProductId_WarehouseId", $"$.{nameof(BizI.Domain.Entities.Inventory.ProductId)} + '_' + $.{nameof(BizI.Domain.Entities.Inventory.WarehouseId)}", false);
-    }
-
-    public void Dispose()
-    {
-        Database.Dispose();
+        // Discover and apply every IEntityTypeConfiguration<T> in this assembly
+        builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 }

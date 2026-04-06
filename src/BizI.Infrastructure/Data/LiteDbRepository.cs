@@ -1,4 +1,3 @@
-// This file is superseded by BizI.Infrastructure/Persistence/Repositories/LiteDbRepository.cs
-// which correctly implements Touch() and MarkAsDeleted() via domain methods.
-// Kept as empty stub to avoid breaking LiteDB AppDbContext registration.
+// Stub — superseded by EF Core (AppDbContext + EfRepository).
+// Kept as empty stub only; safe to delete once LiteDB is fully removed.
 namespace BizI.Infrastructure.Data;

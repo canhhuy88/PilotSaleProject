@@ -2,8 +2,7 @@ using System.Text;
 using BizI.Api.Endpoints;
 using BizI.Api.Middleware;
 using BizI.Application;
-using BizI.Infrastructure.Data.Migrations;
-using BizI.Infrastructure.Data.Seeding;
+using BizI.Application.Seed;
 using BizI.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -80,21 +79,22 @@ builder.Services.AddAuthorization();
 // ── Build ─────────────────────────────────────────────────────────────────────
 var app = builder.Build();
 
-// ── Migrations & Seeding (CLI flag) ──────────────────────────────────────────
-if (args.Contains("--migrate"))
+// ── CLI seed mode ─────────────────────────────────────────────────────────────
+//   dotnet run --project src/BizI.Api -- --seed
+if (args.Contains("--seed"))
 {
     using var scope = app.Services.CreateScope();
-    var migrationRunner = scope.ServiceProvider.GetRequiredService<MigrationRunner>();
-    migrationRunner.Run();
-
-    var seeder = scope.ServiceProvider.GetRequiredService<IDataSeeder>();
+    var seeder = scope.ServiceProvider.GetRequiredService<SeedService>();
     await seeder.SeedAsync();
-
-    Console.WriteLine("Migrations and seeding complete.");
+    Console.WriteLine("✅ Seed completed successfully.");
     return;
 }
 
 // ── Middleware pipeline ───────────────────────────────────────────────────────
+// ⚠️ DATABASE IS NOT AUTO-CREATED OR MIGRATED HERE.
+// Run migrations manually via CLI:
+//   dotnet ef migrations add <Name> --project src/BizI.Infrastructure --startup-project src/BizI.Api
+//   dotnet ef database update       --project src/BizI.Infrastructure --startup-project src/BizI.Api
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseSerilogRequestLogging();
 app.UseMiddleware<GlobalExceptionMiddleware>();
@@ -143,3 +143,6 @@ public class TenantHeaderOperationFilter : Swashbuckle.AspNetCore.SwaggerGen.IOp
         });
     }
 }
+
+
+//taskkill /PID 23316 /F

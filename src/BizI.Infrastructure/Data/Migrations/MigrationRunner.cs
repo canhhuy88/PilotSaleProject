@@ -1,50 +1,46 @@
-using LiteDB;
+using BizI.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace BizI.Infrastructure.Data.Migrations;
 
+/// <summary>
+/// Replaces the old LiteDB MigrationRunner.
+/// Applies any pending EF Core migrations at startup (or on --migrate flag).
+/// </summary>
 public class MigrationRunner
 {
-    private readonly ILiteDatabase _db;
-    private readonly IEnumerable<IMigration> _migrations;
+    private readonly AppDbContext _context;
     private readonly ILogger<MigrationRunner> _logger;
 
-    public MigrationRunner(ILiteDatabase db, IEnumerable<IMigration> migrations, ILogger<MigrationRunner> logger)
+    public MigrationRunner(AppDbContext context, ILogger<MigrationRunner> logger)
     {
-        _db = db;
-        _migrations = migrations;
+        _context = context;
         _logger = logger;
     }
 
-    public void Run()
+    /// <summary>
+    /// Applies all pending EF Core migrations and creates the database if it does not exist.
+    /// </summary>
+    public async Task RunAsync()
     {
-        var collection = _db.GetCollection<MigrationRecord>("_migrations");
-        var appliedMigrations = collection.FindAll().Select(x => x.Version).ToHashSet();
+        var pending = (await _context.Database.GetPendingMigrationsAsync()).ToList();
 
-        var pendingMigrations = _migrations
-            .OrderBy(x => x.Version)
-            .Where(x => !appliedMigrations.Contains(x.Version))
-            .ToList();
-
-        if (!pendingMigrations.Any())
+        if (!pending.Any())
         {
-            _logger.LogInformation("No pending migrations found.");
+            _logger.LogInformation("No pending EF Core migrations.");
             return;
         }
 
-        foreach (var migration in pendingMigrations)
-        {
-            _logger.LogInformation("Applying migration version {Version}...", migration.Version);
-            migration.Up(_db);
-            collection.Insert(new MigrationRecord
-            {
-                Version = migration.Version,
-                AppliedAt = DateTime.UtcNow
-            });
-            _logger.LogInformation("Applied migration version {Version}.", migration.Version);
-        }
+        _logger.LogInformation("Applying {Count} pending migration(s): {Migrations}",
+            pending.Count, string.Join(", ", pending));
+
+        await _context.Database.MigrateAsync();
+
+        _logger.LogInformation("EF Core migrations applied successfully.");
     }
+
+    /// <summary>Synchronous wrapper for use in non-async contexts.</summary>
+    public void Run() => RunAsync().GetAwaiter().GetResult();
 }

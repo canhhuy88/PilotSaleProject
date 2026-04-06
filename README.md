@@ -117,13 +117,102 @@ Triggered via `Order/Return`.
 
 ---
 
-### 🔙 How to Run Migrations:
+## 🗃️ Database Migrations (EF Core CLI — Required)
 
-- **Action**: Open your terminal in the project root and execute:
-- **Action**: dotnet run --project src/BizI.Api/BizI.Api.csproj -- --migrate
+> ⚠️ **The database is NOT created automatically at startup.**
+> All schema changes MUST go through EF Core CLI migrations.
 
-### 🔙 Test DB wordking:
+### Prerequisites
 
-- **Action**:dotnet new console -n TestDb -f net8.0 && cd TestDb && dotnet add package LiteDB && copy ..\src\BizI.Api\biz_i.db . && type ..\test_db.csx > Program.cs && dotnet run
+Install the EF Core CLI tool (once per machine):
+
+```bash
+dotnet tool install --global dotnet-ef
+```
+
+---
+
+### 1. Create a new migration
+
+```bash
+dotnet ef migrations add <MigrationName> \
+  --project src/BizI.Infrastructure \
+  --startup-project src/BizI.Api
+```
+
+Example (initial setup):
+
+```bash
+dotnet ef migrations add Init \
+  --project src/BizI.Infrastructure \
+  --startup-project src/BizI.Api
+```
+
+---
+
+### 2. Apply migrations / update the database
+
+```bash
+dotnet ef database update \
+  --project src/BizI.Infrastructure \
+  --startup-project src/BizI.Api
+```
+
+---
+
+### 3. Remove the last unapplied migration
+
+```bash
+dotnet ef migrations remove \
+  --project src/BizI.Infrastructure \
+  --startup-project src/BizI.Api
+```
+
+```bash
+# 1. Apply schema
+dotnet ef database update --project src/BizI.Infrastructure --startup-project src/BizI.Api
+
+# 2. Seed data (idempotent — safe to run multiple times)
+dotnet run --project src/BizI.Api -- --seed
+```
+
+---
+
+### 4. List all migrations
+
+```bash
+dotnet ef migrations list \
+  --project src/BizI.Infrastructure \
+  --startup-project src/BizI.Api
+```
+
+---
+
+### ⚠️ Safety Rules
+
+- **Never** call `EnsureCreated()` or `Database.Migrate()` in application code.
+- **Never** auto-apply migrations on startup.
+- All schema changes go through migration files tracked in source control.
+
+---
+
+## 🔮 Future-Proof Database Switch
+
+Only one line in [`InfrastructureServiceExtensions.cs`](src/BizI.Infrastructure/DependencyInjection/InfrastructureServiceExtensions.cs) ever needs to change:
+
+```csharp
+// SQLite (current)
+options.UseSqlite(connectionString)
+
+// → SQL Server
+options.UseSqlServer(connectionString)
+
+// → PostgreSQL
+options.UseNpgsql(connectionString)
+```
+
+No other layer (Domain, Application, API) changes.
+
+---
 
 Developed with ❤️ by the PilotSale Team.

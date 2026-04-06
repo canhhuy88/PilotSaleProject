@@ -1,6 +1,8 @@
 using BizI.Application.Common;
 using BizI.Application.Interfaces;
 using BizI.Application.Mappings;
+using BizI.Application.Seed;
+using BizI.Application.Seed.Seeders;
 using BizI.Application.Services;
 using FluentValidation;
 using MediatR;
@@ -34,6 +36,13 @@ public static class ApplicationServiceExtensions
         // IInventoryService implementation lives here in Application
         // Repository dependencies are resolved from Infrastructure
         services.AddScoped<IInventoryService, InventoryService>();
+
+        // ── Seed (Application/Seed) ──────────────────────────────────────────
+        services.AddScoped<RoleSeeder>();
+        services.AddScoped<UserSeeder>();
+        services.AddScoped<CategorySeeder>();
+        services.AddScoped<ProductSeeder>();
+        services.AddScoped<SeedService>();
 
         return services;
     }

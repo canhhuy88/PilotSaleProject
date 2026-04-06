@@ -11,9 +11,6 @@ global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 
-// LiteDB (Infrastructure layer only — no other layer references LiteDB directly)
-global using LiteDB;
-
 // Domain
 global using BizI.Domain.Entities;
 global using BizI.Domain.Enums;
@@ -25,5 +22,4 @@ global using BizI.Application.Common;
 global using BizI.Application.Interfaces;
 
 // Infrastructure
-global using BizI.Infrastructure.Persistence.LiteDb;
 global using BizI.Infrastructure.Persistence.Repositories;
