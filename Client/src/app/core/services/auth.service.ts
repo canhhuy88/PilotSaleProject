@@ -1,8 +1,28 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, tap, of, delay } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import {
+  getUser,
+  setAuthData,
+  clearAuthData,
+  isAuthenticated,
+  getAccessToken,
+  getRefreshToken,
+  hasRole,
+} from '../../../utils/tokenStorage';
+import { AuthResponse, LoginRequest } from '../../../types/auth.types';
+import { authApi } from '../../../api/authApi';
+
+// A hack for non-Angular code (like axiosClient.ts) to reach the singleton
+export let currentAuthServiceInstance: AuthService | null = null;
+
+export const authService = {
+  login: (credentials: LoginRequest) => currentAuthServiceInstance!.login(credentials),
+  refreshToken: () => currentAuthServiceInstance!.refreshToken(),
+  logout: () => currentAuthServiceInstance!.logout(),
+};
 
 @Injectable({
   providedIn: 'root',
@@ -16,48 +36,107 @@ export class AuthService {
   currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {
-    const user = localStorage.getItem('user');
+    currentAuthServiceInstance = this;
+
+    // Migrate legacy logic to use tokenStorage
+    let user = getUser();
+
+    // Legacy fallback
+    if (!user) {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          user = JSON.parse(userStr);
+        } catch (e) {}
+      }
+    }
+
     if (user) {
-      this.currentUserSubject.next(JSON.parse(user));
+      this.currentUserSubject.next(user);
     }
   }
 
-  login(credentials: { username: string; password: string }) {
-    // Dummy login
-    if (credentials.username === 'admin' && credentials.password === '123456') {
-      const mockResponse = {
-        token: 'demo-token',
-        user: { id: '1', username: 'admin', fullName: 'Demo Admin', role: 'Admin' },
-      };
-      return of(mockResponse).pipe(
-        delay(500),
-        tap((response) => this.setSession(response)),
-      );
+  async login(credentials: LoginRequest): Promise<AuthResponse> {
+    const data = await authApi.login(credentials);
+    if (!data.accessToken) {
+      throw new Error('Login failed: No data returned');
     }
 
-    // In a real app, this would be a real API call.
-    // Since I'm building a scaffold, I'll mock it if the URL is not set or fails.
-    return this.http.post<any>(`${this.apiUrl}/auth/login`, credentials).pipe(
-      tap((response) => {
-        this.setSession(response);
-      }),
-    );
+    const authData: AuthResponse = {
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      username: data.username,
+      role: data.role,
+    };
+
+    setAuthData(authData);
+    this.currentUserSubject.next(getUser() || data);
+    return data;
   }
 
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  async refreshToken(): Promise<AuthResponse> {
+    const accessToken = getAccessToken();
+    const refreshToken = getRefreshToken();
+
+    if (!accessToken || !refreshToken) {
+      this.logoutSync();
+      throw new Error('Missing tokens');
+    }
+
+    try {
+      const data = await authApi.refresh({ refreshToken }, accessToken);
+      setAuthData({
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+        username: data.username,
+        role: data.role,
+      });
+      this.currentUserSubject.next(getUser());
+      return data;
+    } catch (error) {
+      this.logoutSync();
+      throw error;
+    }
+  }
+
+  async logout(): Promise<void> {
+    const refreshToken = getRefreshToken();
+    if (refreshToken) {
+      try {
+        await authApi.revoke({ refreshToken } as any);
+      } catch (error) {
+        console.error('Failed to revoke token', error);
+      }
+    }
+
+    this.logoutSync();
+  }
+
+  private logoutSync() {
+    clearAuthData();
+    localStorage.removeItem('token'); // clean legacy keys
+    localStorage.removeItem('user'); // clean legacy keys
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
   }
 
-  private setSession(authResult: any) {
-    localStorage.setItem('token', authResult.token);
-    localStorage.setItem('user', JSON.stringify(authResult.user));
-    this.currentUserSubject.next(authResult.user);
+  isLoggedIn() {
+    return this.isAuthenticated();
   }
 
-  isLoggedIn() {
+  isAuthenticated(): boolean {
+    if (isAuthenticated()) {
+      return true;
+    }
+    // Legacy fallback
     return !!localStorage.getItem('token');
+  }
+
+  getUser(): any {
+    return getUser();
+  }
+
+  hasRole(role: string): boolean {
+    return hasRole(role);
   }
 }

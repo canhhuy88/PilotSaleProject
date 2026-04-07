@@ -137,3 +137,23 @@ global using BizI.Application.Features.ImportOrders.Confirm;
 global using BizI.Application.Features.ImportOrders.Receive;
 global using BizI.Application.Features.ImportOrders.Delete;
 global using BizI.Application.Features.ImportOrders.Dtos;
+
+// Application — StockItems feature slices
+global using BizI.Application.Features.StockItems.Create;
+global using BizI.Application.Features.StockItems.Update;
+global using BizI.Application.Features.StockItems.Delete;
+global using BizI.Application.Features.StockItems.GetAll;
+global using BizI.Application.Features.StockItems.GetById;
+global using BizI.Application.Features.StockItems.Dtos;
+
+// Application — StockOperations feature slices
+global using BizI.Application.Features.StockOperations.Create;
+global using BizI.Application.Features.StockOperations.GetAll;
+global using BizI.Application.Features.StockOperations.GetById;
+global using BizI.Application.Features.StockOperations.Dtos;
+
+// Application — StockTransactions feature slices
+global using BizI.Application.Features.StockTransactions.Create;
+global using BizI.Application.Features.StockTransactions.GetAll;
+global using BizI.Application.Features.StockTransactions.GetById;
+global using BizI.Application.Features.StockTransactions.Dtos;

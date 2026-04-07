@@ -13,6 +13,9 @@ using BizI.Application.Features.Suppliers.Dtos;
 using BizI.Application.Features.Users.Dtos;
 using BizI.Application.Features.Warehouses.Dtos;
 using BizI.Domain.Entities;
+using BizI.Application.Features.StockTransactions.Dtos;
+using BizI.Application.Features.StockItems.Dtos;
+using BizI.Application.Features.StockOperations.Dtos;
 
 namespace BizI.Application.Mappings;
 
@@ -94,6 +97,11 @@ public class AutoMapperProfile : Profile
             .ConstructUsing(t => new InventoryTransactionDto(
                 t.Id, t.ProductId, t.WarehouseId,
                 t.Type, t.Quantity, t.ReferenceId, t.CreatedAt));
+
+        // ── StockTransaction ─────────────────────────────────────────────────
+        CreateMap<StockTransaction, StockTransactionDto>()
+            .ConstructUsing(t => new StockTransactionDto(
+                t.Id, t.ProductId, t.WarehouseId, t.Type.ToString(), t.Quantity, t.BeforeQty, t.AfterQty, t.RefId, t.CreatedBy, t.CreatedAt));
 
         // ── Payment ──────────────────────────────────────────────────────────
         CreateMap<Payment, PaymentDto>()

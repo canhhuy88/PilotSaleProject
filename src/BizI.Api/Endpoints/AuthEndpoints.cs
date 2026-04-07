@@ -15,7 +15,7 @@ public static class AuthEndpoints
         group.MapPost("login", async (LoginRequest request, IAuthService authService) =>
         {
             var result = await authService.LoginAsync(request.Username, request.Password);
-            return result.Success ? Results.Ok(result.Data) : Results.Unauthorized();
+            return result.Success ? Results.Ok(result.Data) : Results.BadRequest(result.Message);
         });
 
         group.MapPost("register", async (RegisterRequest request, IAuthService authService) =>

@@ -48,6 +48,18 @@ builder.Services.AddSwaggerGen(options =>
 // All Application-layer services registered here. Infrastructure wires DB/repos.
 builder.Services.AddApplication();
 
+// ── CORS ──────────────────────────────────────────────────────────────────────
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowClientApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
+           .AllowAnyHeader()
+           .AllowAnyMethod()
+           .AllowCredentials();
+    });
+});
+
 // ── Infrastructure (DB, Repos, Auth, TenantProvider) ─────────────────────────
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -100,6 +112,7 @@ if (args.Contains("--seed"))
 //   dotnet ef database update       --project src/BizI.Infrastructure --startup-project src/BizI.Api
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseSerilogRequestLogging();
+app.UseCors("AllowClientApp");
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<JwtMiddleware>();
 
@@ -118,6 +131,9 @@ app.MapProductEndpoints();
 app.MapOrderEndpoints();
 app.MapInventoryEndpoints();
 app.MapInventoryTransactionEndpoints();
+app.MapStockItemEndpoints();
+app.MapStockOperationsEndpoints();
+app.MapStockTransactionEndpoints();
 app.MapCategoryEndpoints();
 app.MapCustomerEndpoints();
 app.MapCustomerGroupEndpoints();
@@ -133,3 +149,4 @@ app.Run();
 
 
 //taskkill /PID 23316 /F
+
