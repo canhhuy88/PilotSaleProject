@@ -4,10 +4,10 @@ namespace BizI.Application.Features.Products.Update;
 
 public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, CommandResult>
 {
-    private readonly IProductRepository _productRepository;
+    private readonly IRepository<Product> _productRepository;
     private readonly ILogger<UpdateProductHandler> _logger;
 
-    public UpdateProductHandler(IProductRepository productRepository, ILogger<UpdateProductHandler> logger)
+    public UpdateProductHandler(IRepository<Product> productRepository, ILogger<UpdateProductHandler> logger)
     {
         _productRepository = productRepository;
         _logger = logger;

@@ -1,15 +1,16 @@
 using AutoMapper;
 using BizI.Application.Features.Inventory.Dtos;
 using BizI.Domain.Interfaces;
+using BizI.Domain.Entities;
 
 namespace BizI.Application.Features.Inventory.GetAll;
 
 public class GetAllInventoryHandler : IRequestHandler<GetAllInventoryQuery, IEnumerable<InventoryDto>>
 {
-    private readonly IInventoryRepository _repo;
+    private readonly IRepository<BizI.Domain.Entities.Inventory> _repo;
     private readonly IMapper _mapper;
 
-    public GetAllInventoryHandler(IInventoryRepository repo, IMapper mapper)
+    public GetAllInventoryHandler(IRepository<BizI.Domain.Entities.Inventory> repo, IMapper mapper)
     {
         _repo = repo;
         _mapper = mapper;

@@ -11,7 +11,7 @@ export interface LoginRequest {
 }
 
 export interface RefreshRequest {
-  refreshToken: string;
+  //refreshToken: string;
 }
 
 export interface RevokeRequest {

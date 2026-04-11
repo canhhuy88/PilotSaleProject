@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule } from '@angular/material/card';
@@ -14,6 +14,8 @@ import { NotificationService } from '../../shared/services/notification.service'
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { Product } from '../../shared/models/product.model';
 import { CartItem } from '../../shared/models/cart.model';
+import { categoryApi, authApi } from '../../../api/authApi';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-pos',
@@ -169,15 +171,40 @@ import { CartItem } from '../../shared/models/cart.model';
     </div>
   `,
 })
-export class PosComponent {
+export class PosComponent implements OnInit, OnDestroy {
   productService = inject(ProductService);
   cartService = inject(CartService);
   orderService = inject(OrderService);
   notification = inject(NotificationService);
   dialog = inject(MatDialog);
+  private authService = inject(AuthService);
 
   products$ = this.productService.getProducts();
   cartItems = this.cartService.items;
+  private intervalId: any;
+
+  constructor() {
+    console.log('Cart items:111111111111');
+  }
+
+  ngOnInit() {
+    this.intervalId = setInterval(() => {
+      categoryApi
+        .getCategories()
+        .then((categories) => {
+          console.log('Categories:', categories);
+        })
+        .catch((err) => {
+          console.error('Failed to fetch categories:', err);
+        });
+    }, 10000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
 
   addToCart(product: Product) {
     this.cartService.addToCart(product);

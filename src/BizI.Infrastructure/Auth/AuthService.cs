@@ -41,7 +41,7 @@ public class AuthService : IAuthService
         var token = GenerateJwtToken(user, out var refreshTokenEntity);
         await _refreshTokenRepo.AddAsync(refreshTokenEntity);
 
-        return CommandResult.SuccessResult(new { AccessToken = token, RefreshToken = refreshTokenEntity.Token, Username = user.Username, Role = user.RoleId });
+        return CommandResult.SuccessResult(new AuthDto { AccessToken = token, RefreshToken = refreshTokenEntity.Token, Username = user.Username, Role = user.RoleId });
     }
 
     public async Task<CommandResult> RegisterAsync(string username, string password, UserRole role)
@@ -87,7 +87,7 @@ public class AuthService : IAuthService
         var accessToken = GenerateJwtToken(user, out var newRefreshTokenEntity);
         await _refreshTokenRepo.AddAsync(newRefreshTokenEntity);
 
-        return CommandResult.SuccessResult(new { AccessToken = accessToken, RefreshToken = newRefreshTokenEntity.Token, Username = user.Username, Role = user.RoleId });
+        return CommandResult.SuccessResult(new AuthDto { AccessToken = accessToken, RefreshToken = newRefreshTokenEntity.Token, Username = user.Username, Role = user.RoleId });
     }
 
     public async Task<CommandResult> RevokeTokenAsync(string refreshToken)
@@ -115,6 +115,7 @@ public class AuthService : IAuthService
                 new Claim(ClaimTypes.Role, user.RoleId.ToString())
             }),
             Expires = DateTime.UtcNow.AddMinutes(15),
+            //Expires = DateTime.UtcNow.AddSeconds(10),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             Issuer = jwtSettings["Issuer"],
             Audience = jwtSettings["Audience"]

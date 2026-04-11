@@ -4,12 +4,12 @@ namespace BizI.Application.Features.Orders.Create;
 
 public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, CommandResult>
 {
-    private readonly IOrderRepository _orderRepository;
+    private readonly IRepository<Order> _orderRepository;
     private readonly IInventoryService _inventoryService;
     private readonly ILogger<CreateOrderHandler> _logger;
 
     public CreateOrderHandler(
-        IOrderRepository orderRepository,
+        IRepository<Order> orderRepository,
         IInventoryService inventoryService,
         ILogger<CreateOrderHandler> logger)
     {

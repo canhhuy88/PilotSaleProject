@@ -4,12 +4,12 @@ namespace BizI.Application.Features.Orders.Return;
 
 public class ReturnOrderHandler : IRequestHandler<ReturnOrderCommand, CommandResult>
 {
-    private readonly IOrderRepository _orderRepository;
+    private readonly IRepository<Order> _orderRepository;
     private readonly IInventoryService _inventoryService;
     private readonly ILogger<ReturnOrderHandler> _logger;
 
     public ReturnOrderHandler(
-        IOrderRepository orderRepository,
+        IRepository<Order> orderRepository,
         IInventoryService inventoryService,
         ILogger<ReturnOrderHandler> logger)
     {

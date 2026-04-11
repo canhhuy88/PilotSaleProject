@@ -4,10 +4,10 @@ namespace BizI.Application.Features.Orders.GetById;
 
 public class GetOrderByIdHandler : IRequestHandler<GetOrderByIdQuery, OrderDto?>
 {
-    private readonly IOrderRepository _orderRepository;
+    private readonly IRepository<Order> _orderRepository;
     private readonly IMapper _mapper;
 
-    public GetOrderByIdHandler(IOrderRepository orderRepository, IMapper mapper)
+    public GetOrderByIdHandler(IRepository<Order> orderRepository, IMapper mapper)
     {
         _orderRepository = orderRepository;
         _mapper = mapper;

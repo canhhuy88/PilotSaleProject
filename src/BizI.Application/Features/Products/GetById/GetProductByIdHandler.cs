@@ -5,12 +5,12 @@ namespace BizI.Application.Features.Products.GetById;
 
 public class GetProductByIdHandler : IRequestHandler<GetProductByIdQuery, ProductDto?>
 {
-    private readonly IProductRepository _productRepository;
+    private readonly IRepository<Product> _productRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<GetProductByIdHandler> _logger;
 
     public GetProductByIdHandler(
-        IProductRepository productRepository,
+        IRepository<Product> productRepository,
         IMapper mapper,
         ILogger<GetProductByIdHandler> logger)
     {

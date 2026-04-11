@@ -5,12 +5,12 @@ namespace BizI.Application.Features.PaymentAndReturns.CreateReturnOrder;
 public class CreateReturnOrderHandler : IRequestHandler<CreateReturnOrderCommand, CommandResult>
 {
     private readonly IRepository<ReturnOrder> _repo;
-    private readonly IOrderRepository _orderRepo;
+    private readonly IRepository<Order> _orderRepo;
     private readonly IInventoryService _inventoryService;
 
     public CreateReturnOrderHandler(
         IRepository<ReturnOrder> repo,
-        IOrderRepository orderRepo,
+        IRepository<Order> orderRepo,
         IInventoryService inventoryService)
     {
         _repo = repo;

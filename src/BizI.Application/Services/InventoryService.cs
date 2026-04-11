@@ -14,12 +14,12 @@ namespace BizI.Application.Services;
 /// </summary>
 public class InventoryService : IInventoryService
 {
-    private readonly IInventoryRepository _inventoryRepo;
+    private readonly IRepository<BizI.Domain.Entities.Inventory> _inventoryRepo;
     private readonly IRepository<InventoryTransaction> _transactionRepo;
     private readonly ILogger<InventoryService> _logger;
 
     public InventoryService(
-        IInventoryRepository inventoryRepo,
+        IRepository<BizI.Domain.Entities.Inventory> inventoryRepo,
         IRepository<InventoryTransaction> transactionRepo,
         ILogger<InventoryService> logger)
     {
@@ -39,7 +39,7 @@ public class InventoryService : IInventoryService
         var productGuid = productId;
         var warehouseGuid = warehouseId;
 
-        var inventory = await _inventoryRepo.GetByProductAndWarehouseAsync(productGuid, warehouseGuid);
+        var inventory = await _inventoryRepo.FindOneAsync(x=>x.ProductId== productGuid && x.WarehouseId== warehouseGuid);
 
         if (inventory is not null)
         {
@@ -65,7 +65,7 @@ public class InventoryService : IInventoryService
         var productGuid = productId;
         var warehouseGuid = warehouseId;
 
-        var inventory = await _inventoryRepo.GetByProductAndWarehouseAsync(productGuid, warehouseGuid);
+        var inventory = await _inventoryRepo.FindOneAsync(x => x.ProductId == productGuid && x.WarehouseId == warehouseGuid);
 
         if (inventory is null)
             throw new InsufficientStockException(productId, 0, quantity);
@@ -87,7 +87,7 @@ public class InventoryService : IInventoryService
         var productGuid = productId;
         var warehouseGuid = warehouseId;
 
-        var inventory = await _inventoryRepo.GetByProductAndWarehouseAsync(productGuid, warehouseGuid);
+        var inventory = await _inventoryRepo.FindOneAsync(x => x.ProductId == productGuid && x.WarehouseId == warehouseGuid);
 
         if (inventory is not null)
         {
@@ -113,7 +113,7 @@ public class InventoryService : IInventoryService
         var productGuid = productId;
         var warehouseGuid = warehouseId;
 
-        var inventory = await _inventoryRepo.GetByProductAndWarehouseAsync(productGuid, warehouseGuid);
+        var inventory = await _inventoryRepo.FindOneAsync(x => x.ProductId == productGuid && x.WarehouseId == warehouseGuid);
 
         int delta;
         if (inventory is not null)

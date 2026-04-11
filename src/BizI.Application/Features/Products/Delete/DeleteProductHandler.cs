@@ -4,10 +4,10 @@ namespace BizI.Application.Features.Products.Delete;
 
 public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, CommandResult>
 {
-    private readonly IProductRepository _productRepository;
+    private readonly IRepository<Product> _productRepository;
     private readonly ILogger<DeleteProductHandler> _logger;
 
-    public DeleteProductHandler(IProductRepository productRepository, ILogger<DeleteProductHandler> logger)
+    public DeleteProductHandler(IRepository<Product> productRepository, ILogger<DeleteProductHandler> logger)
     {
         _productRepository = productRepository;
         _logger = logger;

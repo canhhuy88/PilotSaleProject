@@ -76,15 +76,15 @@ export class AuthService {
 
   async refreshToken(): Promise<AuthResponse> {
     const accessToken = getAccessToken();
-    const refreshToken = getRefreshToken();
+    //const refreshToken = getRefreshToken();
 
-    if (!accessToken || !refreshToken) {
+    if (!accessToken /* || !refreshToken */) {
       this.logoutSync();
       throw new Error('Missing tokens');
     }
 
     try {
-      const data = await authApi.refresh({ refreshToken }, accessToken);
+      const data = await authApi.refresh(accessToken);
       setAuthData({
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
@@ -97,6 +97,8 @@ export class AuthService {
       this.logoutSync();
       throw error;
     }
+
+    return { accessToken: '' } as AuthResponse; // Placeholder since refresh logic is disabled
   }
 
   async logout(): Promise<void> {

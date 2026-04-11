@@ -496,3 +496,4 @@ src/BizI.Api/app.db
 src/BizI.Infrastructure/Data/Migrations/AppDbContextModelSnapshot.cs
 src/BizI.Infrastructure/Data/Migrations/20260406134838_Initdatabase.cs
 src/BizI.Infrastructure/Data/Migrations/20260406134838_Initdatabase.Designer.cs
+src/BizI.Api copy/app.db

@@ -4,10 +4,10 @@ namespace BizI.Application.Features.Products.Create;
 
 public class CreateProductHandler : IRequestHandler<CreateProductCommand, CommandResult>
 {
-    private readonly IProductRepository _productRepository;
+    private readonly IRepository<Product>  _productRepository;
     private readonly ILogger<CreateProductHandler> _logger;
 
-    public CreateProductHandler(IProductRepository productRepository, ILogger<CreateProductHandler> logger)
+    public CreateProductHandler(IRepository<Product> productRepository, ILogger<CreateProductHandler> logger)
     {
         _productRepository = productRepository;
         _logger = logger;
@@ -17,7 +17,7 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Comman
     {
         _logger.LogInformation("Creating product. SKU: {SKU}, Name: {Name}", request.SKU, request.Name);
 
-        var existing = await _productRepository.GetBySkuAsync(request.SKU);
+        var existing = await _productRepository.FindOneAsync(x=>x.SKU== request.SKU);
         if (existing is not null)
         {
             _logger.LogWarning("Duplicate SKU detected: {SKU}", request.SKU);

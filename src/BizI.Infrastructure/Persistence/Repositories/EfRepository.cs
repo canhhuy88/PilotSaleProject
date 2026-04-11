@@ -45,6 +45,12 @@ public class EfRepository<T> : IRepository<T> where T : BaseEntity
     }
 
     /// <inheritdoc />
+    public async Task<T> FindOneAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await DbSet.Where(predicate).Where(x => !x.IsDeleted).SingleOrDefaultAsync();
+    }
+
+    /// <inheritdoc />
     public async Task AddAsync(T entity)
     {
         _logger.LogDebug("Inserting {Entity} with id: {Id}", typeof(T).Name, entity.Id);

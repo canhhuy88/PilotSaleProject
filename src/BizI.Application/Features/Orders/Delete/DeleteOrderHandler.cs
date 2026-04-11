@@ -1,13 +1,14 @@
+using BizI.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace BizI.Application.Features.Orders.Delete;
 
 public class DeleteOrderHandler : IRequestHandler<DeleteOrderCommand, CommandResult>
 {
-    private readonly IOrderRepository _orderRepository;
+    private readonly IRepository<Order> _orderRepository;
     private readonly ILogger<DeleteOrderHandler> _logger;
 
-    public DeleteOrderHandler(IOrderRepository orderRepository, ILogger<DeleteOrderHandler> logger)
+    public DeleteOrderHandler(IRepository<Order> orderRepository, ILogger<DeleteOrderHandler> logger)
     {
         _orderRepository = orderRepository;
         _logger = logger;

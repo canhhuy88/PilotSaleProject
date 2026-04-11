@@ -4,10 +4,10 @@ namespace BizI.Application.Features.Orders.GetAll;
 
 public class GetAllOrdersHandler : IRequestHandler<GetAllOrdersQuery, IEnumerable<OrderDto>>
 {
-    private readonly IOrderRepository _orderRepository;
+    private readonly IRepository<Order> _orderRepository;
     private readonly IMapper _mapper;
 
-    public GetAllOrdersHandler(IOrderRepository orderRepository, IMapper mapper)
+    public GetAllOrdersHandler(IRepository<Order> orderRepository, IMapper mapper)
     {
         _orderRepository = orderRepository;
         _mapper = mapper;

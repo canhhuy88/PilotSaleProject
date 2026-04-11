@@ -3,7 +3,6 @@ using BizI.Infrastructure.Auth;
 using BizI.Infrastructure.Data;
 using BizI.Infrastructure.Data.Seeding;
 using BizI.Infrastructure.Persistence.Repositories;
-using BizI.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -67,9 +66,9 @@ public static class InfrastructureServiceExtensions
 
         // Domain-specific repository interfaces → EF Core implementations.
         // Swap these lines when switching providers — e.g. future PgProductRepository.
-        services.AddScoped<IProductRepository, EfProductRepository>();
-        services.AddScoped<IInventoryRepository, EfInventoryRepository>();
-        services.AddScoped<IOrderRepository, EfOrderRepository>();
+        //services.AddScoped<IProductRepository, EfProductRepository>();
+        //services.AddScoped<IInventoryRepository, EfInventoryRepository>();
+        //services.AddScoped<IOrderRepository, EfOrderRepository>();
     }
 
     // ── Application Services ──────────────────────────────────────────────────
@@ -79,7 +78,7 @@ public static class InfrastructureServiceExtensions
     private static void RegisterApplicationServices(IServiceCollection services)
     {
         services.AddHttpContextAccessor();
-        services.AddScoped<ITenantProvider, TenantProvider>();
+        //services.AddScoped<ITenantProvider, TenantProvider>();
         services.AddScoped<IAuthService, AuthService>();
     }
 
